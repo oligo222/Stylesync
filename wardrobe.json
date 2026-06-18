@@ -1,0 +1,42 @@
+[
+  {
+    "category": "shirt",
+    "color": "blue",
+    "pattern": "solid",
+    "style": "formal",
+    "id": "231b1f70-01e9-4eba-a73a-d7ae386de7c3",
+    "image_path": "wardrobe\\test_clothing.jpg"
+  },
+  {
+    "category": "shirt",
+    "color": "black",
+    "pattern": "paisley",
+    "style": "casual",
+    "id": "153c1ab1-6cec-4dfa-89b8-96be0b40f16d",
+    "image_path": "wardrobe\\test_clothing2.jpg"
+  },
+  {
+    "category": "shirt",
+    "color": "teal",
+    "pattern": "solid",
+    "style": "formal",
+    "id": "c0cf9992-fdf7-4db4-94bc-f3f4342c8e16",
+    "image_path": "wardrobe\\test_clothing3.jpg"
+  },
+  {
+    "category": "shirt",
+    "color": "multi-colored",
+    "pattern": "plaid",
+    "style": "casual",
+    "id": "8c3420fa-8a9e-49b6-852c-3f79c5e60d9c",
+    "image_path": "wardrobe\\test_clothing4.jpg"
+  },
+  {
+    "category": "shirt",
+    "color": "black",
+    "pattern": "solid",
+    "style": "formal",
+    "id": "eccaaae8-7188-4444-8bba-fdfc149a5b32",
+    "image_path": "wardrobe\\test_clothing5.jpg"
+  }
+]
