@@ -1,0 +1,51 @@
+{
+  "event_analysis": {
+    "event_style": "Formal",
+    "occasion_type": "Office Meeting",
+    "reasoning": "Office meetings are generally considered formal events requiring professional attire."
+  },
+  "recommendations": [
+    {
+      "top": "White Shirt",
+      "bottom": "Black Trousers",
+      "footwear": "Black Formal Shoes",
+      "suitability_score": 98,
+      "confidence_score": 100,
+      "explanation": "This is a classic and highly professional ensemble, perfectly suited for an office meeting as it projects competence and respect for the occasion. It's a timeless and universally appropriate business standard."
+    },
+    {
+      "top": "Light Blue Shirt",
+      "bottom": "Black Trousers",
+      "footwear": "Black Formal Shoes",
+      "suitability_score": 98,
+      "confidence_score": 99,
+      "explanation": "This is a classic and impeccably professional ensemble, perfectly suited for an office meeting. The combination projects competence and respect for the business environment."
+    },
+    {
+      "top": "White Shirt",
+      "bottom": "Navy Trousers",
+      "footwear": "Black Formal Shoes",
+      "suitability_score": 95,
+      "confidence_score": 100,
+      "explanation": "This outfit is a classic, professional, and universally appropriate choice for an office meeting. The combination projects competence and polish, making it highly suitable for the event."
+    }
+  ],
+  "insights": {
+    "most_versatile": {
+      "item": "Black Formal Shoes",
+      "combination_count": 12
+    },
+    "sustainability": {
+      "message": "Your outfit recommendations successfully reused 100% of your existing wardrobe, requiring 0 new items."
+    },
+    "forgotten_gems": [
+      "Light Blue Shirt",
+      "Navy Trousers",
+      "Denim Jacket"
+    ],
+    "gap_analysis": {
+      "message": "You could add an item in the 'Footwear' category to unlock more outfit combinations.",
+      "weakest_category": "Footwear"
+    }
+  }
+}
