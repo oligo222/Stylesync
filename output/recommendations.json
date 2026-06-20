@@ -2,7 +2,7 @@
   "event_analysis": {
     "event_style": "Formal",
     "occasion_type": "Office Meeting",
-    "reasoning": "Office meetings are generally considered formal events requiring professional attire."
+    "reasoning": "Office meetings are professional events that typically require a formal or business-appropriate dress code."
   },
   "recommendations": [
     {
@@ -11,23 +11,23 @@
       "footwear": "Black Formal Shoes",
       "suitability_score": 98,
       "confidence_score": 100,
-      "explanation": "This is a classic and highly professional ensemble, perfectly suited for an office meeting as it projects competence and respect for the occasion. It's a timeless and universally appropriate business standard."
+      "explanation": "This is a timeless and universally appropriate business professional outfit, perfectly suited for an office meeting. It conveys professionalism, seriousness, and a polished demeanor."
     },
     {
       "top": "Light Blue Shirt",
       "bottom": "Black Trousers",
       "footwear": "Black Formal Shoes",
-      "suitability_score": 98,
-      "confidence_score": 99,
-      "explanation": "This is a classic and impeccably professional ensemble, perfectly suited for an office meeting. The combination projects competence and respect for the business environment."
+      "suitability_score": 95,
+      "confidence_score": 98,
+      "explanation": "This is a classic, professional, and universally appropriate ensemble for an office meeting. The combination of a light blue shirt, black trousers, and formal shoes creates a smart, polished look that projects competence."
     },
     {
       "top": "White Shirt",
       "bottom": "Navy Trousers",
       "footwear": "Black Formal Shoes",
-      "suitability_score": 95,
-      "confidence_score": 100,
-      "explanation": "This outfit is a classic, professional, and universally appropriate choice for an office meeting. The combination projects competence and polish, making it highly suitable for the event."
+      "suitability_score": 92,
+      "confidence_score": 98,
+      "explanation": "This is a classic and highly professional business casual ensemble perfectly suited for an office meeting, projecting a polished and appropriate image without being overly formal. It's a timeless and safe choice for a corporate environment."
     }
   ],
   "insights": {

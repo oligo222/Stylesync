@@ -8,7 +8,7 @@ import base64
 
 load_dotenv()
 
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 wardrobe_folder = Path("wardrobe")
