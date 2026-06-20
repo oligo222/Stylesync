@@ -36,7 +36,7 @@ CATEGORY_MAP = {
     "sandals": "Footwear", "heels": "Footwear", "footwear": "Footwear",
 
     "jacket": "Outerwear", "blazer": "Outerwear", "coat": "Outerwear",
-    "cardigan": "Outerwear", "outerwear": "Outerwear",
+    "cardigan": "Outerwear", "outerwear": "Outerwear", "denim jacket": "Outerwear",
 }
 
 

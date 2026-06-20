@@ -25,6 +25,24 @@
             "style": "Casual"
         },
         {
+            "item": "Silk Blouse",
+            "category": "Top",
+            "color": "Ivory",
+            "style": "Formal"
+        },
+        {
+            "item": "Floral Wrap Top",
+            "category": "Top",
+            "color": "Multicolor",
+            "style": "Casual"
+        },
+        {
+            "item": "Black Turtleneck",
+            "category": "Top",
+            "color": "Black",
+            "style": "Formal"
+        },
+        {
             "item": "Black Trousers",
             "category": "Bottom",
             "color": "Black",
@@ -43,6 +61,24 @@
             "style": "Casual"
         },
         {
+            "item": "A-Line Midi Skirt",
+            "category": "Bottom",
+            "color": "Black",
+            "style": "Formal"
+        },
+        {
+            "item": "High-Waisted Wide-Leg Pants",
+            "category": "Bottom",
+            "color": "Beige",
+            "style": "Casual"
+        },
+        {
+            "item": "Pleated Skater Skirt",
+            "category": "Bottom",
+            "color": "Navy",
+            "style": "Casual"
+        },
+        {
             "item": "Black Formal Shoes",
             "category": "Footwear",
             "color": "Black",
@@ -52,6 +88,18 @@
             "item": "White Sneakers",
             "category": "Footwear",
             "color": "White",
+            "style": "Casual"
+        },
+        {
+            "item": "Black Heels",
+            "category": "Footwear",
+            "color": "Black",
+            "style": "Formal"
+        },
+        {
+            "item": "Tan Ankle Boots",
+            "category": "Footwear",
+            "color": "Tan",
             "style": "Casual"
         },
         {
@@ -65,6 +113,18 @@
             "category": "Outerwear",
             "color": "Black",
             "style": "Formal"
+        },
+        {
+            "item": "Camel Wool Coat",
+            "category": "Outerwear",
+            "color": "Camel",
+            "style": "Formal"
+        },
+        {
+            "item": "Cropped Cardigan",
+            "category": "Outerwear",
+            "color": "Cream",
+            "style": "Casual"
         }
     ]
 }
