@@ -4,8 +4,12 @@ StyleSync Event Planner Page
 Allows users to plan outfits for upcoming events.
 """
 import os
+import sys
 import streamlit as st
 from components.sidebar import render_sidebar
+
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+from main import run_pipeline
 
 st.set_page_config(
     page_title="Event Planner - StyleSync",
@@ -91,10 +95,29 @@ def main():
             st.warning("Please enter an event name to generate an outfit suggestion.")
         else:
             st.success(f"Processing outfit request for **{event_name}**!")
-            st.info(
-                "StyleSync AI is selecting the best combinations from your wardrobe... "
-                "(Backend model integration coming soon!)"
+            
+            event_description = (
+                f"{event_name}, a {dress_code} event, "
+                f"{venue_setting} setting, on {event_date} at {event_time}"
             )
+            
+            with st.spinner("StyleSync AI is selecting the best combinations from your wardrobe..."):
+                result = run_pipeline(event_description)
+            
+            recommendations = result.get("recommendations", [])
+            
+            if not recommendations:
+                st.warning("No outfit recommendations could be generated. Try a different event description.")
+            else:
+                st.subheader("Your Recommended Outfits")
+                for i, outfit in enumerate(recommendations, start=1):
+                    with st.container():
+                        st.markdown(f"**Outfit {i} — Score: {outfit.get('suitability_score', 'N/A')}/100**")
+                        st.write(f"Top: {outfit.get('top', 'N/A')}")
+                        st.write(f"Bottom: {outfit.get('bottom', 'N/A')}")
+                        st.write(f"Footwear: {outfit.get('footwear', 'N/A')}")
+                        st.caption(outfit.get('explanation', ''))
+                        st.write("---")
 
 if __name__ == "__main__":
     main()
