@@ -37,10 +37,16 @@ else:
         prompt = """Analyze this clothing item and respond ONLY with a JSON object like this:
 {
   "category": "...",
+  "garment_type": "...",
   "color": "...",
   "pattern": "...",
   "style": "..."
 }
+
+For "category", you MUST choose exactly one of these four values: "Top", "Bottom", "Footwear", "Outerwear".
+For "garment_type", describe the specific item naturally (e.g. "camisole", "blazer", "ankle boots", "wide-leg trousers").
+For "style", you MUST choose exactly one of these two values: "Formal", "Casual".
+
 No extra text, just the JSON."""
 
         response = client.models.generate_content(
@@ -65,4 +71,3 @@ No extra text, just the JSON."""
 
     wardrobe_file.write_text(json.dumps(wardrobe, indent=2))
     print("\nAll done! Your wardrobe.json is updated!")
-    

@@ -334,5 +334,23 @@
     "style": "y2k",
     "id": "62f58c3f-64d7-499c-8a12-f0590226721d",
     "image_path": "wardrobe/Styling a Y2K Mesh Ruffle Camisole _ Pink Floral Aesthetic.jpg"
+  },
+  {
+    "category": "Top",
+    "garment_type": "long-sleeve mesh top",
+    "color": "teal",
+    "pattern": "floral",
+    "style": "Casual",
+    "id": "d30fc1a2-0732-4103-bee0-3530ab0874af",
+    "image_path": "wardrobe\\Prettiest blue & brown mesh top with sequin detailing\ud83d\udc2c SOLD OUT\ud83c\udf38__Size_ 36-44 inches bust (super stretchy)_Length_ 21 inches __Price_.jpg"
+  },
+  {
+    "category": "Footwear",
+    "garment_type": "sneakers",
+    "color": "burgundy and metallic silver",
+    "pattern": "none",
+    "style": "Casual",
+    "id": "640f7b8d-adf8-4f2d-bd3c-d710659fbbd2",
+    "image_path": "wardrobe/download (31).jpg"
   }
 ]

@@ -2,38 +2,38 @@
   "event_analysis": {
     "event_style": "Formal",
     "occasion_type": "Office Meeting",
-    "reasoning": "An office meeting is a professional setting that typically requires formal attire to convey professionalism and respect for the workplace environment."
+    "reasoning": "Office meetings are professional events that typically require a polished and respectful appearance."
   },
   "recommendations": [
     {
       "top": "Blue Shirt",
       "bottom": "Black Trousers",
       "footwear": "Black Shoes",
-      "suitability_score": 90,
-      "confidence_score": 95,
-      "explanation": "This outfit is a classic and highly appropriate choice for most office meetings, projecting a professional and polished image. The combination of a blue shirt, black trousers, and black shoes is versatile and widely accepted in business environments."
-    },
-    {
-      "top": "Blue Shirt",
-      "bottom": "Black Trousers",
-      "footwear": "White Sneakers",
-      "suitability_score": 70,
-      "confidence_score": 50,
-      "explanation": "This outfit is a reasonable match based on style and color coordination."
+      "suitability_score": 95,
+      "confidence_score": 98,
+      "explanation": "This is a classic and professional business casual ensemble that is widely appropriate for most office meeting environments, projecting a polished and reliable image. The colors are neutral and the items are standard office wear."
     },
     {
       "top": "Blue Shirt",
       "bottom": "Black Trousers",
       "footwear": "Black Sandals",
-      "suitability_score": 70,
-      "confidence_score": 50,
-      "explanation": "This outfit is a reasonable match based on style and color coordination."
+      "suitability_score": 75,
+      "confidence_score": 90,
+      "explanation": "The blue shirt and black trousers create a professional foundation, but black sandals might be considered too casual for an office meeting in many corporate environments. Suitability depends heavily on the specific style of the sandals and the company's dress code."
+    },
+    {
+      "top": "Blue Shirt",
+      "bottom": "Black Trousers",
+      "footwear": "White Sneakers",
+      "suitability_score": 68,
+      "confidence_score": 90,
+      "explanation": "The blue shirt and black trousers create a professional foundation suitable for an office. However, white sneakers, while acceptable in some modern business casual settings, might lack the polished look typically preferred for a formal office meeting, potentially making the outfit slightly underdressed depending on the specific office culture."
     }
   ],
   "insights": {
     "most_versatile": {
       "item": "Blue Jeans",
-      "combination_count": 126
+      "combination_count": 135
     },
     "sustainability": {
       "message": "Your outfit recommendations successfully reused 100% of your existing wardrobe, requiring 0 new items."
@@ -41,15 +41,15 @@
     "forgotten_gems": [
       "Multi-Colored Plaid Shirt",
       "Black Shirt",
-      "Black Sandals"
+      "Champagne Blouse"
     ],
     "gap_analysis": {
       "weakest_category": "Bottom",
       "shopping_advisor": {
-        "current_score": 66,
+        "current_score": 62,
         "suggestion": "a versatile pair of dark denim jeans",
         "impact": {
-          "combos_unlocked": "+126 outfit combinations unlocked",
+          "combos_unlocked": "+135 outfit combinations unlocked",
           "versatility": "+25% versatility impact"
         }
       }

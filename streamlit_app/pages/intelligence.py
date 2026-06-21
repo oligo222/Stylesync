@@ -5,10 +5,16 @@ Wardrobe analytics dashboard including sustainability score, versatility insight
 cost-per-wear tables, and plotly-based category/color/seasonal distributions.
 """
 import os
+import sys
+import json
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from components.sidebar import render_sidebar
+
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+from wardrobe_adapter import load_and_adapt
+from insights_engine import most_versatile_item, sustainability_insight, forgotten_gems, load_usage_history
 
 st.set_page_config(
     page_title="Style Intelligence - StyleSync",
@@ -24,6 +30,27 @@ def load_css(css_file_path):
     if os.path.exists(css_file_path):
         with open(css_file_path, "r") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+def get_real_wardrobe_data():
+    """
+    Loads real wardrobe + usage data for the intelligence page, with safe
+    fallbacks if files are missing or empty.
+    """
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    try:
+        wardrobe_path = os.path.join(project_root, "wardrobe.json")
+        items = load_and_adapt(wardrobe_path).get("items", [])
+    except Exception:
+        items = []
+
+    try:
+        history_path = os.path.join(project_root, "data", "usage_history.json")
+        used_items = load_usage_history(history_path)
+    except Exception:
+        used_items = []
+
+    return items, used_items
 
 def main():
     # Setup styling and sidebar
@@ -47,39 +74,34 @@ def main():
     st.write("---")
     
     # Row 1: High Level Metrics
-    col1, col2, col3 = st.columns(3)
-    
+    items, used_items = get_real_wardrobe_data()
+    num_outfits = max(1, len(used_items) // 3)
+    sustainability = sustainability_insight(num_outfits)
+
+    total_items = len(items)
+    unique_used = len(set(used_items))
+    utilization_pct = round((unique_used / total_items) * 100) if total_items > 0 else 0
+
+    col1, col2 = st.columns(2)
+
     with col1:
         st.markdown(
-            """
+            f"""
             <div class="metric-card">
-                <div class="metric-label">Sustainability Score</div>
-                <div class="metric-val" style="color: #10b981;">78 / 100</div>
-                <div class="metric-delta up" style="color: #10b981;">🌿 Good • Top 15% of Stylers</div>
+                <div class="metric-label">Sustainability Insight</div>
+                <div class="metric-val" style="color: #10b981; font-size: 1.1rem;">{sustainability['message']}</div>
             </div>
             """,
             unsafe_allow_html=True
         )
-        
+
     with col2:
         st.markdown(
-            """
-            <div class="metric-card">
-                <div class="metric-label">Average Cost per Wear</div>
-                <div class="metric-val">$2.45</div>
-                <div class="metric-delta up" style="color: #10b981;">▼ -$0.12 this month</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-    with col3:
-        st.markdown(
-            """
+            f"""
             <div class="metric-card">
                 <div class="metric-label">Wardrobe Utilization</div>
-                <div class="metric-val">84%</div>
-                <div class="metric-delta up" style="color: #10b981;">▲ +4% active items</div>
+                <div class="metric-val">{utilization_pct}%</div>
+                <div class="metric-delta up" style="color: #10b981;">{unique_used} of {total_items} items used</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -93,10 +115,15 @@ def main():
     with col_cat:
         st.write("### Category Distribution")
         
+        category_counts = {}
+        for item in items:
+            cat = item.get("category", "Unknown")
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+
         cat_data = pd.DataFrame({
-            "Category": ["Tops", "Bottoms", "Outerwear", "Shoes", "Accessories"],
-            "Count": [45, 32, 18, 15, 32]
-        })
+            "Category": list(category_counts.keys()),
+            "Count": list(category_counts.values())
+        }) if category_counts else pd.DataFrame({"Category": ["No data yet"], "Count": [1]})
         
         # Donut Chart with clean palette
         fig_cat = px.pie(
@@ -117,10 +144,17 @@ def main():
     with col_color:
         st.write("### Dominant Wardrobe Colors")
         
+        color_counts = {}
+        for item in items:
+            color = item.get("color", "Unknown")
+            color_counts[color] = color_counts.get(color, 0) + 1
+
+        sorted_colors = sorted(color_counts.items(), key=lambda x: x[1], reverse=True)[:6]
+
         color_data = pd.DataFrame({
-            "Color": ["Black", "Navy", "White", "Beige", "Grey", "Olive"],
-            "Items Count": [38, 28, 25, 20, 16, 15]
-        })
+            "Color": [c[0] for c in sorted_colors],
+            "Items Count": [c[1] for c in sorted_colors]
+        }) if sorted_colors else pd.DataFrame({"Color": ["No data yet"], "Items Count": [1]})
         
         # Horizontal Bar Chart
         fig_color = px.bar(
@@ -141,77 +175,27 @@ def main():
         
     st.write("---")
     
-    # Row 3: Seasonal Chart & Cost per Wear
-    col_season, col_cost = st.columns(2)
-    
-    with col_season:
-        st.write("### Seasonal Distribution")
-        
-        season_data = pd.DataFrame({
-            "Season": ["Spring", "Summer", "Autumn", "Winter"],
-            "Items": [35, 48, 30, 29]
-        })
-        
-        # Stacked / Clean vertical Bar Chart
-        fig_season = px.bar(
-            season_data,
-            x="Season",
-            y="Items",
-            color_discrete_sequence=["#111827"]
-        )
-        fig_season.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            yaxis=dict(gridcolor="#e5e7eb")
-        )
-        st.plotly_chart(fig_season, use_container_width=True)
-        
-    with col_cost:
-        st.write("### Cost Per Wear Leaderboard")
-        
-        # Cost per wear calculation dataframe
-        cost_df = pd.DataFrame({
-            "Garment Item": [
-                "🧥 Beige Trench Coat",
-                "👖 Classic Blue Jeans",
-                "👟 White Leather Sneakers",
-                "👜 Black Leather Tote",
-                "👚 White Silk Blouse"
-            ],
-            "Retail Cost": ["$180.00", "$90.00", "$120.00", "$210.00", "$110.00"],
-            "Times Worn": [62, 54, 78, 48, 22],
-            "Cost Per Wear": ["$2.90", "$1.67", "$1.54", "$4.38", "$5.00"]
-        })
-        
-        st.dataframe(cost_df, use_container_width=True, hide_index=True)
-        
-    st.write("---")
-    
-    # Row 4: Versatility Analysis
+  # Row 3: Versatility & Usage Analysis
     col_versatile, col_unworn = st.columns(2)
-    
+
     with col_versatile:
-        st.write("### Most Versatile Items")
-        st.markdown(
-            """
-            *   **Beige Trench Coat**: Combines with **32** distinct outfits.
-            *   **Classic Blue Jeans**: Combines with **28** distinct outfits.
-            *   **White Silk Blouse**: Combines with **24** distinct outfits.
-            *   **White Leather Sneakers**: Fits both semi-formal and casual styling.
-            """
-        )
-        
+        st.write("### Most Versatile Item")
+
+        versatile = most_versatile_item(items)
+        if versatile.get("item"):
+            st.markdown(f"*   **{versatile['item']}**: Combines with **{versatile['combination_count']}** distinct outfits.")
+        else:
+            st.markdown("*   *No versatility metrics calculated yet.*")
+
     with col_unworn:
-        st.write("### Least Used Items (Opportunities to Style)")
-        st.markdown(
-            """
-            *   **Neon Green Raincoat**: Worn **0** times (last 90 days).
-            *   **Red Velvet Bowtie**: Worn **1** time (last 180 days).
-            *   **Yellow Suede Loafers**: Worn **2** times (last 180 days).
-            *   **Plaid Wool Scarf**: Unworn since last season.
-            """
-        )
+        st.write("### Forgotten Gems (Opportunities to Style)")
+
+        gems = forgotten_gems(items, used_items)
+        if gems:
+            for gem in gems:
+                st.markdown(f"*   **{gem}**: Not used in your recent recommendations.")
+        else:
+            st.markdown("*   *Your wardrobe is fully utilized! No forgotten items found.*")
 
 if __name__ == "__main__":
     main()
