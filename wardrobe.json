@@ -38,5 +38,277 @@
     "style": "formal",
     "id": "eccaaae8-7188-4444-8bba-fdfc149a5b32",
     "image_path": "wardrobe\\test_clothing5.jpg"
+  },
+  {
+    "category": "jeans",
+    "color": "blue",
+    "pattern": "solid",
+    "style": "distressed skinny",
+    "id": "29023872-ccc4-41b9-b4e6-08d9419dd545",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 153426.png"
+  },
+  {
+    "category": "sneakers",
+    "color": "white",
+    "pattern": "solid",
+    "style": "minimalist",
+    "id": "f9aa5494-407f-4284-abcc-889f03c10f4c",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 153509.png"
+  },
+  {
+    "category": "sandals",
+    "color": "black",
+    "pattern": "solid",
+    "style": "strappy block heel",
+    "id": "a9937c93-7b06-4cd1-91dd-14a69c1f5344",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 153558.png"
+  },
+  {
+    "category": "blouse",
+    "color": "champagne",
+    "pattern": "solid",
+    "style": "classic",
+    "id": "77362869-dbfa-4e4a-be1b-d919c47171fb",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 153814.png"
+  },
+  {
+    "category": "blouse",
+    "color": "multicolored",
+    "pattern": "floral",
+    "style": "bohemian",
+    "id": "d6ce0391-e029-42d4-b746-026eda76075b",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 153922.png"
+  },
+  {
+    "category": "blazer",
+    "color": "black",
+    "pattern": "solid",
+    "style": "formal",
+    "id": "a19f63c9-8cac-4156-8feb-8effaf0b6360",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 154147.png"
+  },
+  {
+    "category": "denim jacket",
+    "color": "medium blue",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "2ed1f99d-30b3-4d86-ba52-12a1e97b3f0d",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 154215.png"
+  },
+  {
+    "category": "trousers",
+    "color": "black",
+    "pattern": "solid",
+    "style": "formal",
+    "id": "0b252b7e-25c6-4631-9a00-025750ee8957",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210008.png"
+  },
+  {
+    "category": "shoes",
+    "color": "black",
+    "pattern": "solid",
+    "style": "oxford",
+    "id": "e4943a2d-f9d3-4ce4-8089-94be5f5bcfae",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210051.png"
+  },
+  {
+    "category": "boots",
+    "color": "black",
+    "pattern": "solid",
+    "style": "chelsea",
+    "id": "be0e75be-2c98-404e-83db-072ca786ab6c",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210111.png"
+  },
+  {
+    "category": "sandals",
+    "color": "beige",
+    "pattern": "solid",
+    "style": "minimalist",
+    "id": "cc1106ff-b5c9-40e1-b22a-5179c643f774",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210714.png"
+  },
+  {
+    "category": "hoodie",
+    "color": "taupe",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "f37d9ba5-4d9b-4459-9f0f-3e5093cf39fd",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210851.png"
+  },
+  {
+    "category": "fleece jacket",
+    "color": "blue and white",
+    "pattern": "fair isle",
+    "style": "casual",
+    "id": "4d4427ac-f292-4911-9968-0cba43d911fa",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210939.png"
+  },
+  {
+    "category": "parka",
+    "color": "navy blue",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "a461c1f8-8c82-43b0-853b-24e4ad45501f",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 210956.png"
+  },
+  {
+    "category": "varsity jacket",
+    "color": "red and white",
+    "pattern": "solid with letter applique",
+    "style": "sporty",
+    "id": "195e3b5e-d0cb-4feb-b995-56c93d2e5916",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211029.png"
+  },
+  {
+    "category": "jacket",
+    "color": "brown",
+    "pattern": "solid",
+    "style": "biker",
+    "id": "88b77a29-dc95-4d64-bcf1-7d3e245cd6f1",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211037.png"
+  },
+  {
+    "category": "T-shirt",
+    "color": "white",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "9fe079be-d073-4c7e-8add-6d5715732cbe",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211131.png"
+  },
+  {
+    "category": "T-shirt",
+    "color": "black",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "e8f45e12-108b-4a7d-a84b-4634172b9fd4",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211138.png"
+  },
+  {
+    "category": "sweater",
+    "color": "mustard yellow",
+    "pattern": "ribbed knit",
+    "style": "casual",
+    "id": "fe0b3fcf-3303-4607-9b76-8b2b31d398a5",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211334.png"
+  },
+  {
+    "category": "shirt",
+    "color": "multi-colored",
+    "pattern": "plaid",
+    "style": "casual",
+    "id": "d13a4495-cd14-4139-a210-9cf6f947e3b2",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211346.png"
+  },
+  {
+    "category": "shirt",
+    "color": "white",
+    "pattern": "solid",
+    "style": "button-down",
+    "id": "0d608bbc-5a95-4cfb-807b-eed0897f49c9",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211358.png"
+  },
+  {
+    "category": "dress",
+    "color": "red",
+    "pattern": "solid",
+    "style": "vintage",
+    "id": "d0b05d87-4041-41ac-8bf5-cd7d50fa08ff",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211447.png"
+  },
+  {
+    "category": "dress",
+    "color": "light blue",
+    "pattern": "polka dot",
+    "style": "vintage 1950s rockabilly swing",
+    "id": "8ede9fba-4a93-4062-bb8c-81c894cf9a2e",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211505.png"
+  },
+  {
+    "category": "dress",
+    "color": "white and black",
+    "pattern": "polka dot and floral",
+    "style": "vintage 1950s rockabilly halter",
+    "id": "610dc05b-3d7e-41db-a39a-d4d90780b60e",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211523.png"
+  },
+  {
+    "category": "long-sleeve t-shirt",
+    "color": "light gray",
+    "pattern": "graphic print",
+    "style": "casual",
+    "id": "fa2d0092-e631-4420-b0b9-6c3f96ce0424",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211537.png"
+  },
+  {
+    "category": "pants",
+    "color": "mustard brown",
+    "pattern": "solid",
+    "style": "wide-leg pleated trousers",
+    "id": "519ca445-d641-445b-af9e-8b77d922e499",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211638.png"
+  },
+  {
+    "category": "pants",
+    "color": "olive green",
+    "pattern": "solid",
+    "style": "wide-leg",
+    "id": "59abd397-bd57-4cfd-96a2-1878aaaca93f",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211652.png"
+  },
+  {
+    "category": "shorts",
+    "color": "blue",
+    "pattern": "solid",
+    "style": "denim",
+    "id": "d847ccd7-b3bf-4a8b-baff-b771a78c7320",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211705.png"
+  },
+  {
+    "category": "shorts",
+    "color": "blue",
+    "pattern": "solid",
+    "style": "denim",
+    "id": "97edef50-7a54-4af6-89a8-c5af3df1f79b",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211725.png"
+  },
+  {
+    "category": "pants",
+    "color": "tan",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "8599ea0b-a287-48f3-8b87-becca2fec4a9",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211806.png"
+  },
+  {
+    "category": "shoes",
+    "color": "black",
+    "pattern": "solid",
+    "style": "block heel pumps",
+    "id": "8e66e9b9-2a86-41b7-80d5-325d6c85782b",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 211910.png"
+  },
+  {
+    "category": "shoes",
+    "color": "brown",
+    "pattern": "solid",
+    "style": "high-top sneaker",
+    "id": "6a4dae3d-bf0c-45b2-97d6-32a2c17f388e",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 212102.png"
+  },
+  {
+    "category": "boots",
+    "color": "black",
+    "pattern": "solid",
+    "style": "casual",
+    "id": "d5fa0351-4c90-4e1f-a9ba-59e03eb2b0a7",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 212113.png"
+  },
+  {
+    "category": "footwear",
+    "color": "tan",
+    "pattern": "textured",
+    "style": "flip-flops",
+    "id": "0a23162e-8efc-4110-b719-1f7f14e41b96",
+    "image_path": "wardrobe\\Screenshot 2026-06-20 212133.png"
   }
 ]

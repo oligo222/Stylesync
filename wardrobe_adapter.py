@@ -37,6 +37,12 @@ CATEGORY_MAP = {
 
     "jacket": "Outerwear", "blazer": "Outerwear", "coat": "Outerwear",
     "cardigan": "Outerwear", "outerwear": "Outerwear", "denim jacket": "Outerwear",
+
+    "dress": "Outerwear",
+"fleece jacket": "Outerwear",
+"long-sleeve t-shirt": "Top",
+"parka": "Outerwear",
+"varsity jacket": "Outerwear",
 }
 
 
