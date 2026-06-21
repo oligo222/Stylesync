@@ -28,11 +28,13 @@ def load_css(css_file_path):
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def load_real_wardrobe():
-    """Loads the actual scanned wardrobe.json from the project root."""
+    """Loads the actual scanned wardrobe.json from the project root,
+    showing most recently added items first."""
     wardrobe_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "wardrobe.json")
     if os.path.exists(wardrobe_path):
         with open(wardrobe_path, "r") as f:
-            return json.load(f)
+            items = json.load(f)
+            return list(reversed(items))
     return []
 
 def main():
