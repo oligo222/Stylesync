@@ -1,11 +1,12 @@
 """
 StyleSync Recommendations Page
 
-Displays AI-generated outfit recommendations, match scores, explanations,
-and action buttons for saving or regenerating looks.
+Displays the most recent real AI-generated outfit recommendations,
+pulled from output/recommendations.json (produced by the actual
+recommendation pipeline via the Event page).
 """
 import os
-import random
+import json
 import streamlit as st
 from components.sidebar import render_sidebar
 
@@ -16,177 +17,104 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Mock recommendation data
-RECOMMENDATIONS_POOL = [
-    {
-        "name": "Classic Metropolitan Layering",
-        "items": [
-            "🧥 Beige Trench Coat (Outerwear)",
-            "🧶 Navy Knit Sweater (Tops)",
-            "👖 Dark Slim Chinos (Bottoms)",
-            "👞 Leather Chelsea Boots (Shoes)"
-        ],
-        "score": 94,
-        "explanation": "This look balances length and color weight. The long line of the Beige Trench Coat provides structured elegance, while the deep Navy Knit sweater brings texture. Light-brown Chelsea boots pull the earthy shades together for an effortless smart-casual vibe.",
-        "emoji": "🧥"
-    },
-    {
-        "name": "Effortless Chic Evening",
-        "items": [
-            "👚 White Silk Blouse (Tops)",
-            "👗 Charcoal High-Waisted Skirt (Bottoms)",
-            "👠 Black Suede Heels (Shoes)",
-            "👜 Minimal Leather Clutch (Accessories)"
-        ],
-        "score": 89,
-        "explanation": "A clean, high-contrast look suitable for dinner dates or evening events. The soft drape of the White Silk Blouse creates an upscale feel, contrasted cleanly by the structured dark skirt. Classic black heels anchor the ensemble.",
-        "emoji": "👗"
-    },
-    {
-        "name": "Smart Casual Blazer Look",
-        "items": [
-            "🧥 Tailored Navy Blazer (Outerwear)",
-            "👕 White Crewneck Tee (Tops)",
-            "👖 Charcoal Slim Trousers (Bottoms)",
-            "👞 White Leather Sneakers (Shoes)"
-        ],
-        "score": 92,
-        "explanation": "A timeless workplace combination. The navy blazer lends instant structure and professionalism, while the clean crewneck tee keeps it fresh. White sneakers soften the look to be accessible and modern.",
-        "emoji": "💼"
-    },
-    {
-        "name": "Relaxed Urban Streetwear",
-        "items": [
-            "🧥 Olive Bomber Jacket (Outerwear)",
-            "👕 Black Graphic Tee (Tops)",
-            "👖 Olive Cargo Pants (Bottoms)",
-            "👟 Retro Runner Sneakers (Shoes)"
-        ],
-        "score": 87,
-        "explanation": "Perfect for off-duty weekend errands. This look embraces tonal olive greens and practical street style. High-contrast white/black details keep the visual fields defined.",
-        "emoji": "👟"
-    }
-]
-
 def load_css(css_file_path):
-    """
-    Loads custom styling CSS.
-    """
     if os.path.exists(css_file_path):
         with open(css_file_path, "r") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+def load_latest_recommendations():
+    """Loads the most recent pipeline output from output/recommendations.json."""
+    output_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "output", "recommendations.json"
+    )
+    if os.path.exists(output_path):
+        with open(output_path, "r") as f:
+            return json.load(f)
+    return None
+
 def main():
-    # Setup styling and sidebar
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)
     render_sidebar()
-    
-    # Page Header
+
     st.markdown(
         """
         <div style="margin-bottom: 24px;">
             <h1 style="font-weight: 700; margin-bottom: 4px;">✨ AI Outfit Recommendations</h1>
             <p style="color: #6b7280; font-size: 1.1rem; margin: 0;">
-                Personalized style recommendations crafted from your wardrobe database.
+                Your most recent AI-generated recommendations, based on your real wardrobe.
             </p>
         </div>
         """,
         unsafe_allow_html=True
     )
-    
+
     st.write("---")
-    
-    # Initialize active recommendation in session state
-    if "current_rec" not in st.session_state:
-        st.session_state.current_rec = RECOMMENDATIONS_POOL[0]
-        
-    rec = st.session_state.current_rec
-    
-    # Layout splits: Visual mockup card (left) and styled details card (right)
-    col_visual, col_details = st.columns([1, 1], gap="large")
-    
-    with col_visual:
-        st.write("### Outfit Visual Layout")
-        st.markdown(
-            f"""
-            <div style="
-                border: 1px solid #e5e7eb; 
-                border-radius: 16px; 
-                background: #ffffff; 
-                padding: 40px; 
-                text-align: center;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                margin-top: 10px;
-            ">
-                <div style="font-size: 8rem; line-height: 1.2;">{rec['emoji']}</div>
-                <h3 style="font-weight: 600; color: #111827; margin-top: 16px; margin-bottom: 4px;">{rec['name']}</h3>
-                <span style="
-                    font-size: 0.85rem; 
-                    font-weight: 600; 
-                    color: #4b5563; 
-                    background-color: #f3f4f6; 
-                    padding: 6px 12px; 
-                    border-radius: 9999px;
-                ">
-                    AI Suggested Combination
-                </span>
-            </div>
-            """,
-            unsafe_allow_html=True
+
+    data = load_latest_recommendations()
+
+    if not data or not data.get("recommendations"):
+        st.info(
+            "No recommendations yet. Head to the **Event** page, describe an upcoming "
+            "event, and generate outfit suggestions — they'll show up here."
         )
-        
-    with col_details:
-        st.write("### Recommendation Details")
-        
-        # Match Score Badge
-        st.markdown(
-            f"""
-            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; margin-top: 10px;">
-                <span style="font-size: 1.1rem; font-weight: 600; color: #4b5563;">Stylist Match Score:</span>
-                <span style="
-                    font-size: 1.5rem; 
-                    font-weight: 700; 
-                    color: #10b981; 
-                    background-color: #ecfdf5; 
-                    border: 1px solid #10b981; 
-                    padding: 4px 16px; 
-                    border-radius: 8px;
-                ">
-                    {rec['score']}% Match
-                </span>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        # Clothing Items List
-        st.markdown("#### Included Clothing Items:")
-        for item in rec["items"]:
-            st.markdown(f"- {item}")
-            
-        st.write("")
-        
-        # Styling Explanation
-        st.markdown("#### Stylist Note:")
-        st.info(rec["explanation"])
-        
-    st.write("---")
-    
-    # Action buttons row
-    col_btn_left, col_btn_right = st.columns(2)
-    
-    with col_btn_left:
-        if st.button("💾 Save Outfit to Collection", use_container_width=True):
-            st.success(f"Successfully saved '**{rec['name']}**' to your outfits history!")
-            
-    with col_btn_right:
-        if st.button("🔄 Generate Another Recommendation", use_container_width=True):
-            # Select a random recommendation from the pool (different from the current one)
-            remaining_pool = [r for r in RECOMMENDATIONS_POOL if r["name"] != rec["name"]]
-            st.session_state.current_rec = random.choice(remaining_pool)
-            # Force refresh page to display new recommendation
-            st.rerun()
+        return
+
+    event_info = data.get("event_analysis", {})
+    recommendations = data.get("recommendations", [])
+
+    st.markdown(f"#### For: *{event_info.get('occasion_type', 'Your Event')}* ({event_info.get('event_style', '')})")
+    if event_info.get("reasoning"):
+        st.caption(event_info["reasoning"])
+
+    st.write("")
+
+    for i, outfit in enumerate(recommendations):
+        with st.container():
+            col_visual, col_details = st.columns([1, 2], gap="large")
+
+            with col_visual:
+                st.markdown(
+                    f"""
+                    <div style="
+                        border: 1px solid #e5e7eb;
+                        border-radius: 16px;
+                        background: #ffffff;
+                        padding: 32px;
+                        text-align: center;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                    ">
+                        <div style="font-size: 4rem;">👕</div>
+                        <h4 style="font-weight: 600; color: #111827; margin-top: 8px;">Outfit {i+1}</h4>
+                        <span style="
+                            font-size: 1.2rem;
+                            font-weight: 700;
+                            color: #10b981;
+                            background-color: #ecfdf5;
+                            padding: 4px 14px;
+                            border-radius: 8px;
+                        ">
+                            {outfit.get('suitability_score', '?')}/100
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col_details:
+                st.markdown("**Items:**")
+                if outfit.get("top"):
+                    st.markdown(f"- 👕 Top: {outfit['top']}")
+                if outfit.get("bottom"):
+                    st.markdown(f"- 👖 Bottom: {outfit['bottom']}")
+                if outfit.get("footwear"):
+                    st.markdown(f"- 👞 Footwear: {outfit['footwear']}")
+
+                st.markdown("**Stylist Note:**")
+                st.info(outfit.get("explanation", "No explanation available."))
+
+        st.write("---")
 
 if __name__ == "__main__":
     main()
