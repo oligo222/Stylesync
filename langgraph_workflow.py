@@ -80,15 +80,15 @@ def insight_node(state: GraphState) -> dict:
     print("[Node: Insight] Updating usage history and compiling statistics...")
     
     recommendations = state.get("recommendations", [])
-    
     if recommendations:
         top_outfit = recommendations[0]
         items_to_save = [
             top_outfit[key]
             for key in ["top", "bottom", "footwear"]
             if top_outfit.get(key) is not None
-        ]
-        save_usage_history(items_to_save)
+         ]
+        top_score = top_outfit.get("suitability_score")
+        save_usage_history(items_to_save, score=top_score)
         
     history = load_usage_history()
     insights = generate_insights(state["wardrobe"], history)

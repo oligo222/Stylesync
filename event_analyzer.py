@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import time
 from dotenv import load_dotenv
 from google import genai
 
@@ -15,8 +16,7 @@ if api_key:
     client = genai.Client(api_key=api_key)
 else:
     client = None
-
-def analyze_event(event_description):
+def analyze_event(event_description, max_retries=2, retry_delay=3):
     """
     Analyzes a free-text event description and classifies its style and type.
     
@@ -25,11 +25,13 @@ def analyze_event(event_description):
     - occasion_type: a short name like "Interview", "Wedding", etc.
     - reasoning: a single-sentence explanation.
     
-    If the API call fails, JSON parsing fails, or the event_style is invalid,
-    it returns a default fallback dictionary.
+    Retries up to max_retries times on transient API errors (e.g. 503)
+    before falling back to a default dictionary.
     
     Parameters:
         event_description (str): Free-text description of the event.
+        max_retries (int): Number of attempts before falling back.
+        retry_delay (int): Seconds to wait between retries.
         
     Returns:
         dict: The analyzed event attributes.
@@ -55,45 +57,33 @@ Return ONLY a JSON object with exactly these keys:
 Do not write any markdown code blocks, preamble, formatting, or commentary outside of the raw JSON object.
 """
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        
-        response_text = response.text.strip()
-        
-        if response_text.startswith("```"):
-            response_text = re.sub(r"^```(?:json)?\s*", "", response_text)
-            response_text = re.sub(r"\s*```$", "", response_text)
-            response_text = response_text.strip()
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
             
-        result = json.loads(response_text)
-        
-        required_keys = ["event_style", "occasion_type", "reasoning"]
-        if (all(key in result for key in required_keys) and 
-                result["event_style"] in ["Formal", "Casual"]):
-            return result
-        else:
-            return fallback_dict
+            response_text = response.text.strip()
             
-    except Exception as e:
-        print(f"ACTUAL ERROR: {e}")
-        return fallback_dict
-
-if __name__ == "__main__":
-    import time
+            if response_text.startswith("```"):
+                response_text = re.sub(r"^```(?:json)?\s*", "", response_text)
+                response_text = re.sub(r"\s*```$", "", response_text)
+                response_text = response_text.strip()
+                
+            result = json.loads(response_text)
+            
+            required_keys = ["event_style", "occasion_type", "reasoning"]
+            if (all(key in result for key in required_keys) and 
+                    result["event_style"] in ["Formal", "Casual"]):
+                return result
+            else:
+                return fallback_dict
+                
+        except Exception as e:
+            print(f"ACTUAL ERROR (attempt {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
     
-    test_events = [
-        "Interview tomorrow",
-        "Casual dinner with friends",
-        "Wedding next week"
-    ]
-    
-    print("Testing event analyzer...\n")
-    for event in test_events:
-        print(f"Event: '{event}'")
-        analysis = analyze_event(event)
-        print(json.dumps(analysis, indent=2))
-        print("-" * 40)
-        time.sleep(2)
+    print("All retry attempts failed, using fallback.")
+    return fallback_dict

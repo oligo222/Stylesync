@@ -310,5 +310,29 @@
     "style": "flip-flops",
     "id": "0a23162e-8efc-4110-b719-1f7f14e41b96",
     "image_path": "wardrobe\\Screenshot 2026-06-20 212133.png"
+  },
+  {
+    "category": "top",
+    "color": "brown",
+    "pattern": "floral",
+    "style": "casual",
+    "id": "2278af8a-41fd-4a7e-9a71-6e178a3498d9",
+    "image_path": "wardrobe/download (30).jpg"
+  },
+  {
+    "category": "dress",
+    "color": "burgundy",
+    "pattern": "solid",
+    "style": "formal evening gown",
+    "id": "b55adfd3-6551-4b1e-81de-0fdbcc6073dc",
+    "image_path": "wardrobe/download (29).jpg"
+  },
+  {
+    "category": "camisole",
+    "color": "pink",
+    "pattern": "floral",
+    "style": "y2k",
+    "id": "62f58c3f-64d7-499c-8a12-f0590226721d",
+    "image_path": "wardrobe/Styling a Y2K Mesh Ruffle Camisole _ Pink Floral Aesthetic.jpg"
   }
 ]
