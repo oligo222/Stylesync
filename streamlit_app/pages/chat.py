@@ -1,8 +1,5 @@
 """
 StyleSync AI Stylist Chat Page
-
-Real conversational interface powered by Gemini, aware of the user's
-actual wardrobe items.
 """
 import os
 import sys
@@ -10,7 +7,6 @@ import json
 import streamlit as st
 from components.sidebar import render_sidebar
 
-# Allow importing from project root
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from wardrobe_adapter import client
 
@@ -21,36 +17,25 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-def load_css(css_file_path):
-    if os.path.exists(css_file_path):
-        with open(css_file_path, "r") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
 def load_wardrobe_summary():
-    """Loads the real wardrobe and builds a short text summary for the prompt."""
     wardrobe_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "wardrobe.json"
     )
     if not os.path.exists(wardrobe_path):
         return "The user hasn't uploaded any wardrobe items yet."
-
     with open(wardrobe_path, "r") as f:
         items = json.load(f)
-
     if not items:
         return "The user hasn't uploaded any wardrobe items yet."
-
     lines = []
     for item in items:
         color = item.get("color", "")
         garment = item.get("garment_type") or item.get("category", "item")
         style = item.get("style", "")
         lines.append(f"- {color} {garment} ({style})")
-
     return "The user's actual wardrobe contains:\n" + "\n".join(lines)
 
 def generate_stylist_response(prompt, chat_history, wardrobe_summary):
-    """Calls Gemini with real wardrobe context and conversation history."""
     system_context = f"""You are a friendly, knowledgeable AI fashion stylist for the StyleSync app.
 
 {wardrobe_summary}
@@ -59,7 +44,6 @@ Give specific, practical styling advice. When relevant, reference actual items f
 the user's wardrobe listed above by name, rather than generic suggestions. Keep
 responses conversational and concise (2-4 sentences usually, more if genuinely needed).
 """
-
     history_text = ""
     for msg in chat_history[-6:]:
         role = "User" if msg["role"] == "user" else "Stylist"
@@ -77,23 +61,72 @@ responses conversational and concise (2-4 sentences usually, more if genuinely n
         return f"Sorry, I couldn't process that right now. (Error: {e})"
 
 def main():
-    css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
-    load_css(css_path)
     render_sidebar()
 
-    st.markdown(
-        """
-        <div style="margin-bottom: 24px;">
-            <h1 style="font-weight: 700; margin-bottom: 4px;">💬 AI Stylist Consultation</h1>
-            <p style="color: #6b7280; font-size: 1.1rem; margin: 0;">
-                Ask questions, describe outfits, or get help styling your closet.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    st.write("---")
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #eef0f7 !important;
+        color: #0a0a0a !important;
+    }
+    [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewBlockContainer"],
+    [data-testid="stVerticalBlock"],
+    [data-testid="stMainBlockContainer"],
+    .main, section.main > div, .block-container {
+        background-color: #eef0f7 !important;
+    }
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stAppViewContainer"],
+        [data-testid="stAppViewBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stMainBlockContainer"],
+        .main, section.main > div, .block-container {
+            background-color: #eef0f7 !important;
+            color: #0a0a0a !important;
+        }
+        p, span, div, label, li { color: #0a0a0a !important; }
+    }
+    .main .block-container { background: #eef0f7 !important; }
+
+    .page-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #7986cb;
+        margin-bottom: 6px;
+    }
+    .page-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0a0a0a;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 6px;
+    }
+    .page-subtitle {
+        font-size: 0.95rem;
+        color: #4a4a5a;
+        margin-bottom: 24px;
+    }
+    [data-testid="stChatMessage"] {
+        background: #ffffff !important;
+        border: 1.5px solid #d0d5e8 !important;
+        border-radius: 10px !important;
+        margin-bottom: 10px !important;
+    }
+    </style>
+
+    <div class="page-label">StyleSync AI</div>
+    <div class="page-title">Your Personal Stylist.</div>
+    <div class="page-subtitle">Ask anything about your wardrobe — I know exactly what you own.</div>
+    <hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">
+    """, unsafe_allow_html=True)
 
     if "messages" not in st.session_state:
         st.session_state.messages = [
@@ -120,7 +153,6 @@ def main():
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
             message_placeholder.markdown("*Stylist is thinking...*")
-
             wardrobe_summary = load_wardrobe_summary()
             response = generate_stylist_response(prompt, st.session_state.messages, wardrobe_summary)
             message_placeholder.markdown(response)

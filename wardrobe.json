@@ -352,5 +352,68 @@
     "style": "Casual",
     "id": "640f7b8d-adf8-4f2d-bd3c-d710659fbbd2",
     "image_path": "wardrobe/download (31).jpg"
+  },
+  {
+    "category": "Outerwear",
+    "garment_type": "shacket",
+    "color": "brown",
+    "pattern": "solid",
+    "style": "Casual",
+    "id": "3dcce30e-c5d3-43a0-88b4-c0c6b3454768",
+    "image_path": "wardrobe/Deal_ DEELMO Men\u2019s Stylish Cotton Blend Casual Shirt __ Full Sleeve Button-Down Shirt with Dual Flap Pockets __ Comfortable Breathable Fabric __ Perfect for Casual Office and Outing Wear.jpg"
+  },
+  {
+    "category": "Outerwear",
+    "garment_type": "shacket",
+    "color": "brown",
+    "pattern": "solid",
+    "style": "Casual",
+    "id": "c300eedf-0988-4f00-ba8f-d01297bf831e",
+    "image_path": "wardrobe/Deal_ DEELMO Men\u2019s Stylish Cotton Blend Casual Shirt __ Full Sleeve Button-Down Shirt with Dual Flap Pockets __ Comfortable Breathable Fabric __ Perfect for Casual Office and Outing Wear.jpg"
+  },
+  {
+    "category": "Bottom",
+    "garment_type": "wide-leg jeans",
+    "color": "washed black",
+    "pattern": "solid",
+    "style": "Casual",
+    "id": "79d69f61-2470-43bb-a26e-fada9d2d7b1f",
+    "image_path": "wardrobe/Depop Women's Jeans.jpg"
+  },
+  {
+    "category": "Bottom",
+    "garment_type": "wide-leg jeans",
+    "color": "blue",
+    "pattern": "solid",
+    "style": "Casual",
+    "id": "73c5e982-5bec-41b3-89d2-9f847263d806",
+    "image_path": "wardrobe/download (33).jpg"
+  },
+  {
+    "category": "Top",
+    "garment_type": "polo sweater",
+    "color": "dark green and white",
+    "pattern": "vertical ribbed",
+    "style": "Casual",
+    "id": "b5637b00-f300-4871-9858-c71804c49508",
+    "image_path": "wardrobe/Men's Tipped Johnny Collar Sweater Polo _ Men's Tops _ Abercrombie_com.jpg"
+  },
+  {
+    "category": "Footwear",
+    "garment_type": "sneakers",
+    "color": "white",
+    "pattern": "solid",
+    "style": "Casual",
+    "id": "993d3368-dd4d-4870-be81-008561fe1337",
+    "image_path": "wardrobe/Screenshot 2026-06-20 153509.png"
+  },
+  {
+    "category": "Footwear",
+    "garment_type": "strappy block heel sandals",
+    "color": "black",
+    "pattern": "solid",
+    "style": "Formal",
+    "id": "cfee8577-0617-4568-88b4-d3133a9356f7",
+    "image_path": "wardrobe/Screenshot 2026-06-20 153558.png"
   }
 ]
