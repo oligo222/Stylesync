@@ -2,8 +2,17 @@
 StyleSync Recommendations Page
 """
 import os
+import random
+import sys
 import json
 import streamlit as st
+
+# Allow importing from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
+from authentication.auth_utils import require_login
 from components.sidebar import render_sidebar
 
 st.set_page_config(
@@ -24,6 +33,10 @@ def load_latest_recommendations():
     return None
 
 def main():
+    require_login()
+    # Setup styling and sidebar
+    css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
+    load_css(css_path)
     render_sidebar()
 
     st.markdown("""

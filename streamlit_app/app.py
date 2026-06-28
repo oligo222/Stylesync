@@ -5,6 +5,13 @@ import os
 import sys
 import json
 import streamlit as st
+
+# Allow importing from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
+from authentication.auth_utils import require_login
 from components.sidebar import render_sidebar
 from components.dashboard import render_welcome_banner, render_metric_cards
 from components.outfits import render_recent_outfits

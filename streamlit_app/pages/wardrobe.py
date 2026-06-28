@@ -14,6 +14,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 from wardrobe_adapter import scan_single_image, add_item_to_wardrobe
+from authentication.auth_utils import require_login
 
 st.set_page_config(
     page_title="My Wardrobe - StyleSync",
@@ -36,6 +37,8 @@ def load_real_wardrobe():
     return []
 
 def main():
+    require_login()
+    css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     css_path = os.path.join(os.path.dirname(os.path.dirname(_HERE)), "assets", "style.css")
     load_css(css_path)
     render_sidebar()

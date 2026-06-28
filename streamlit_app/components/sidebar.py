@@ -3,6 +3,9 @@ StyleSync Sidebar Component
 """
 import streamlit as st
 
+import os
+import sys
+
 def render_sidebar(user_name: str = "Alex", membership_tier: str = "Premium Member"):
     with st.sidebar:
         st.markdown("""

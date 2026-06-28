@@ -8,6 +8,7 @@ from components.sidebar import render_sidebar
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 from main import run_pipeline
+from authentication.auth_utils import require_login
 
 st.set_page_config(
     page_title="Event Planner - StyleSync",
@@ -17,6 +18,10 @@ st.set_page_config(
 )
 
 def main():
+    require_login()
+    # Setup styling and sidebar
+    css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
+    load_css(css_path)
     render_sidebar()
 
     st.markdown("""
