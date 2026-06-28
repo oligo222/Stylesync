@@ -5,7 +5,15 @@ ChatGPT-style conversational interface for style advice and outfit recommendatio
 """
 import os
 import time
+import sys
 import streamlit as st
+
+# Allow importing from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
+from authentication.auth_utils import require_login
 from components.sidebar import render_sidebar
 
 st.set_page_config(
@@ -61,6 +69,7 @@ def generate_stylist_response(prompt: str) -> str:
         )
 
 def main():
+    require_login()
     # Setup styling and sidebar
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)

@@ -5,10 +5,19 @@ Renders sidebar branding, user profile card, and quick styling tips.
 """
 import streamlit as st
 
+import os
+import sys
+
 def render_sidebar(user_name: str = "Alex", membership_tier: str = "Premium Member"):
     """
     Renders the sidebar navigation branding, profile card, and status widget.
     """
+    # Check if user is logged in
+    user = st.session_state.get("user")
+    if user:
+        user_name = user.get("name", user_name)
+        membership_tier = user.get("membership_tier", membership_tier)
+
     with st.sidebar:
         # App logo / title
         st.markdown(
@@ -41,6 +50,18 @@ def render_sidebar(user_name: str = "Alex", membership_tier: str = "Premium Memb
         )
         
         st.divider()
+
+        # Add Logout button in sidebar if logged in
+        if st.session_state.get("logged_in"):
+            # Ensure path is set for imports
+            PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            if PROJECT_ROOT not in sys.path:
+                sys.path.append(PROJECT_ROOT)
+            from authentication.auth_utils import logout
+
+            if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True):
+                logout()
+            st.divider()
         
         # Status Card
         st.markdown(

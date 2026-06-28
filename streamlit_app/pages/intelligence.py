@@ -5,9 +5,17 @@ Wardrobe analytics dashboard including sustainability score, versatility insight
 cost-per-wear tables, and plotly-based category/color/seasonal distributions.
 """
 import os
+import sys
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
+# Allow importing from project root
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
+
+from authentication.auth_utils import require_login
 from components.sidebar import render_sidebar
 
 st.set_page_config(
@@ -26,6 +34,7 @@ def load_css(css_file_path):
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def main():
+    require_login()
     # Setup styling and sidebar
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)
