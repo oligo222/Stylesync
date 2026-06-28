@@ -28,7 +28,6 @@ def scan_single_image(image_bytes, filename="uploaded_image.jpg"):
     Sends a single image to Gemini Vision and returns structured clothing data.
     Also saves the image file into the wardrobe/ folder.
     """
-    # Save the image file so it can be displayed later
     wardrobe_folder = Path(__file__).resolve().parent / "wardrobe"
     wardrobe_folder.mkdir(exist_ok=True)
     image_save_path = wardrobe_folder / filename
@@ -37,10 +36,16 @@ def scan_single_image(image_bytes, filename="uploaded_image.jpg"):
     prompt = """Analyze this clothing item and respond ONLY with a JSON object like this:
 {
   "category": "...",
+  "garment_type": "...",
   "color": "...",
   "pattern": "...",
   "style": "..."
 }
+
+For "category", you MUST choose exactly one of these four values: "Top", "Bottom", "Footwear", "Outerwear".
+For "garment_type", describe the specific item naturally (e.g. "camisole", "blazer", "ankle boots", "wide-leg trousers").
+For "style", you MUST choose exactly one of these two values: "Formal", "Casual".
+
 No extra text, just the JSON."""
 
     try:
@@ -110,24 +115,26 @@ def map_category(raw_category):
 
 
 def map_style(raw_style):
-    """Title-cases the style string. Defaults to 'Casual' if missing/unrecognized."""
+    """Maps a raw scanned style string to Module C's Formal/Casual taxonomy.
+    Checks if 'formal' appears anywhere in the string (handles things like
+    'formal evening gown'). Anything else, including genuinely unrecognized
+    styles like 'bohemian' or 'vintage', defaults to 'Casual', since that's
+    the safer fallback (won't be wrongly excluded from a Casual-event search)."""
     if not raw_style:
         return "Casual"
     cleaned = raw_style.strip().lower()
-    if cleaned == "formal":
+    if "formal" in cleaned:
         return "Formal"
-    if cleaned == "casual":
-        return "Casual"
-    return raw_style.strip().title()
+    return "Casual"
 
 
 def build_item_name(scanned_item):
     """Builds the human-readable 'item' name Module C requires."""
     color = (scanned_item.get("color") or "").strip().title()
     pattern = (scanned_item.get("pattern") or "").strip().title()
-    category = (scanned_item.get("category") or "Item").strip().title()
+    garment = (scanned_item.get("garment_type") or scanned_item.get("category") or "Item").strip().title()
 
-    parts = [p for p in (color, pattern if pattern.lower() != "solid" else None, category) if p]
+    parts = [p for p in (color, pattern if pattern.lower() != "solid" else None, garment) if p]
     return " ".join(parts) if parts else "Unnamed Item"
 
 

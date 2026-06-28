@@ -1,8 +1,5 @@
 """
 StyleSync Intelligence Page
-
-Wardrobe analytics dashboard including sustainability score, versatility insights,
-cost-per-wear tables, and plotly-based category/color/seasonal distributions.
 """
 import os
 import sys
@@ -18,6 +15,10 @@ if PROJECT_ROOT not in sys.path:
 from authentication.auth_utils import require_login
 from components.sidebar import render_sidebar
 
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+from wardrobe_adapter import load_and_adapt
+from insights_engine import most_versatile_item, sustainability_insight, forgotten_gems, load_usage_history
+
 st.set_page_config(
     page_title="Style Intelligence - StyleSync",
     page_icon="✨",
@@ -25,13 +26,19 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-def load_css(css_file_path):
-    """
-    Loads custom styling CSS.
-    """
-    if os.path.exists(css_file_path):
-        with open(css_file_path, "r") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+def get_real_wardrobe_data():
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    try:
+        wardrobe_path = os.path.join(project_root, "wardrobe.json")
+        items = load_and_adapt(wardrobe_path).get("items", [])
+    except Exception:
+        items = []
+    try:
+        history_path = os.path.join(project_root, "data", "usage_history.json")
+        used_items = load_usage_history(history_path)
+    except Exception:
+        used_items = []
+    return items, used_items
 
 def main():
     require_login()
@@ -39,188 +46,202 @@ def main():
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)
     render_sidebar()
-    
-    # Page Header
-    st.markdown(
-        """
-        <div style="margin-bottom: 24px;">
-            <h1 style="font-weight: 700; margin-bottom: 4px;">📈 Style Intelligence</h1>
-            <p style="color: #6b7280; font-size: 1.1rem; margin: 0;">
-                Detailed analytics, usage frequencies, sustainability scores, and wardrobe insights.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    st.write("---")
-    
-    # Row 1: High Level Metrics
-    col1, col2, col3 = st.columns(3)
-    
+
+    st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif !important;
+        background-color: #eef0f7 !important;
+        color: #0a0a0a !important;
+    }
+    [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewBlockContainer"],
+    [data-testid="stVerticalBlock"],
+    [data-testid="stMainBlockContainer"],
+    .main, section.main > div, .block-container {
+        background-color: #eef0f7 !important;
+    }
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stAppViewContainer"],
+        [data-testid="stAppViewBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stMainBlockContainer"],
+        .main, section.main > div, .block-container {
+            background-color: #eef0f7 !important;
+            color: #0a0a0a !important;
+        }
+        p, span, div, label, li { color: #0a0a0a !important; }
+    }
+    .main .block-container { background: #eef0f7 !important; }
+
+    .page-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #7986cb;
+        margin-bottom: 6px;
+    }
+    .page-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0a0a0a;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+        margin-bottom: 6px;
+    }
+    .page-subtitle {
+        font-size: 0.95rem;
+        color: #4a4a5a;
+        margin-bottom: 24px;
+    }
+    .stat-card {
+        background: #ffffff;
+        border: 1.5px solid #d0d5e8;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 0 14px rgba(129,199,132,0.2);
+    }
+    .stat-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #7986cb;
+        margin-bottom: 6px;
+    }
+    .stat-value {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0a0a0a;
+        line-height: 1.3;
+    }
+    .section-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0a0a0a;
+        margin-bottom: 12px;
+        letter-spacing: -0.3px;
+    }
+    .insight-row {
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: #0a0a0a;
+        padding: 8px 0;
+        border-bottom: 1px solid #eef0f7;
+    }
+    </style>
+
+    <div class="page-label">StyleSync AI</div>
+    <div class="page-title">Wardrobe Intelligence.</div>
+    <div class="page-subtitle">Analytics, sustainability scores, and insights from your closet.</div>
+    <hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">
+    """, unsafe_allow_html=True)
+
+    items, used_items = get_real_wardrobe_data()
+    num_outfits = max(1, len(used_items) // 3)
+    sustainability = sustainability_insight(num_outfits)
+    total_items = len(items)
+    unique_used = len(set(used_items))
+    utilization_pct = round((unique_used / total_items) * 100) if total_items > 0 else 0
+
+    col1, col2 = st.columns(2)
     with col1:
-        st.markdown(
-            """
-            <div class="metric-card">
-                <div class="metric-label">Sustainability Score</div>
-                <div class="metric-val" style="color: #10b981;">78 / 100</div>
-                <div class="metric-delta up" style="color: #10b981;">🌿 Good • Top 15% of Stylers</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-label">Sustainability Insight</div>
+            <div class="stat-value" style="font-size:0.95rem;font-weight:500;">{sustainability['message']}</div>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.markdown(
-            """
-            <div class="metric-card">
-                <div class="metric-label">Average Cost per Wear</div>
-                <div class="metric-val">$2.45</div>
-                <div class="metric-delta up" style="color: #10b981;">▼ -$0.12 this month</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-    with col3:
-        st.markdown(
-            """
-            <div class="metric-card">
-                <div class="metric-label">Wardrobe Utilization</div>
-                <div class="metric-val">84%</div>
-                <div class="metric-delta up" style="color: #10b981;">▲ +4% active items</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-    st.write("---")
-    
-    # Row 2: Plotly Distribution Charts (Category & Color)
+        st.markdown(f"""
+        <div class="stat-card">
+            <div class="stat-label">Wardrobe Utilization</div>
+            <div class="stat-value">{utilization_pct}%</div>
+            <div style="font-size:0.82rem;color:#4a4a5a;margin-top:4px;">{unique_used} of {total_items} items used</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown('<hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">', unsafe_allow_html=True)
+
     col_cat, col_color = st.columns(2)
-    
+
     with col_cat:
-        st.write("### Category Distribution")
-        
+        st.markdown('<div class="section-title">Category Distribution</div>', unsafe_allow_html=True)
+        category_counts = {}
+        for item in items:
+            cat = item.get("category", "Unknown")
+            category_counts[cat] = category_counts.get(cat, 0) + 1
         cat_data = pd.DataFrame({
-            "Category": ["Tops", "Bottoms", "Outerwear", "Shoes", "Accessories"],
-            "Count": [45, 32, 18, 15, 32]
-        })
-        
-        # Donut Chart with clean palette
+            "Category": list(category_counts.keys()),
+            "Count": list(category_counts.values())
+        }) if category_counts else pd.DataFrame({"Category": ["No data yet"], "Count": [1]})
+
         fig_cat = px.pie(
-            cat_data, 
-            values="Count", 
-            names="Category", 
-            hole=0.5,
-            color_discrete_sequence=["#111827", "#374151", "#4b5563", "#9ca3af", "#e5e7eb"]
+            cat_data, values="Count", names="Category", hole=0.5,
+            color_discrete_sequence=["#c5cae9", "#b2dfdb", "#f8bbd9", "#fff9c4", "#b3e5fc"]
         )
         fig_cat.update_layout(
             margin=dict(t=10, b=10, l=10, r=10),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="Inter", color="#0a0a0a"),
             legend=dict(orientation="h", y=-0.1)
         )
         st.plotly_chart(fig_cat, use_container_width=True)
-        
+
     with col_color:
-        st.write("### Dominant Wardrobe Colors")
-        
+        st.markdown('<div class="section-title">Dominant Wardrobe Colors</div>', unsafe_allow_html=True)
+        color_counts = {}
+        for item in items:
+            color = item.get("color", "Unknown")
+            color_counts[color] = color_counts.get(color, 0) + 1
+        sorted_colors = sorted(color_counts.items(), key=lambda x: x[1], reverse=True)[:6]
         color_data = pd.DataFrame({
-            "Color": ["Black", "Navy", "White", "Beige", "Grey", "Olive"],
-            "Items Count": [38, 28, 25, 20, 16, 15]
-        })
-        
-        # Horizontal Bar Chart
+            "Color": [c[0] for c in sorted_colors],
+            "Items Count": [c[1] for c in sorted_colors]
+        }) if sorted_colors else pd.DataFrame({"Color": ["No data yet"], "Items Count": [1]})
+
         fig_color = px.bar(
-            color_data,
-            x="Items Count",
-            y="Color",
-            orientation="h",
-            color_discrete_sequence=["#374151"]
+            color_data, x="Items Count", y="Color", orientation="h",
+            color_discrete_sequence=["#9fa8da"]
         )
         fig_color.update_layout(
             margin=dict(t=10, b=10, l=10, r=10),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            xaxis=dict(gridcolor="#e5e7eb"),
+            font=dict(family="Inter", color="#0a0a0a"),
+            xaxis=dict(gridcolor="#e8eaf6"),
             yaxis=dict(categoryorder="total ascending")
         )
         st.plotly_chart(fig_color, use_container_width=True)
-        
-    st.write("---")
-    
-    # Row 3: Seasonal Chart & Cost per Wear
-    col_season, col_cost = st.columns(2)
-    
-    with col_season:
-        st.write("### Seasonal Distribution")
-        
-        season_data = pd.DataFrame({
-            "Season": ["Spring", "Summer", "Autumn", "Winter"],
-            "Items": [35, 48, 30, 29]
-        })
-        
-        # Stacked / Clean vertical Bar Chart
-        fig_season = px.bar(
-            season_data,
-            x="Season",
-            y="Items",
-            color_discrete_sequence=["#111827"]
-        )
-        fig_season.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            yaxis=dict(gridcolor="#e5e7eb")
-        )
-        st.plotly_chart(fig_season, use_container_width=True)
-        
-    with col_cost:
-        st.write("### Cost Per Wear Leaderboard")
-        
-        # Cost per wear calculation dataframe
-        cost_df = pd.DataFrame({
-            "Garment Item": [
-                "🧥 Beige Trench Coat",
-                "👖 Classic Blue Jeans",
-                "👟 White Leather Sneakers",
-                "👜 Black Leather Tote",
-                "👚 White Silk Blouse"
-            ],
-            "Retail Cost": ["$180.00", "$90.00", "$120.00", "$210.00", "$110.00"],
-            "Times Worn": [62, 54, 78, 48, 22],
-            "Cost Per Wear": ["$2.90", "$1.67", "$1.54", "$4.38", "$5.00"]
-        })
-        
-        st.dataframe(cost_df, use_container_width=True, hide_index=True)
-        
-    st.write("---")
-    
-    # Row 4: Versatility Analysis
+
+    st.markdown('<hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">', unsafe_allow_html=True)
+
     col_versatile, col_unworn = st.columns(2)
-    
+
     with col_versatile:
-        st.write("### Most Versatile Items")
-        st.markdown(
-            """
-            *   **Beige Trench Coat**: Combines with **32** distinct outfits.
-            *   **Classic Blue Jeans**: Combines with **28** distinct outfits.
-            *   **White Silk Blouse**: Combines with **24** distinct outfits.
-            *   **White Leather Sneakers**: Fits both semi-formal and casual styling.
-            """
-        )
-        
+        st.markdown('<div class="section-title">Most Versatile Item</div>', unsafe_allow_html=True)
+        versatile = most_versatile_item(items)
+        if versatile.get("item"):
+            st.markdown(f'<div class="insight-row">✨ <strong>{versatile["item"]}</strong> — combines with <strong>{versatile["combination_count"]}</strong> distinct outfits.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="insight-row">No versatility metrics calculated yet.</div>', unsafe_allow_html=True)
+
     with col_unworn:
-        st.write("### Least Used Items (Opportunities to Style)")
-        st.markdown(
-            """
-            *   **Neon Green Raincoat**: Worn **0** times (last 90 days).
-            *   **Red Velvet Bowtie**: Worn **1** time (last 180 days).
-            *   **Yellow Suede Loafers**: Worn **2** times (last 180 days).
-            *   **Plaid Wool Scarf**: Unworn since last season.
-            """
-        )
+        st.markdown('<div class="section-title">Forgotten Gems</div>', unsafe_allow_html=True)
+        gems = forgotten_gems(items, used_items)
+        if gems:
+            for gem in gems:
+                st.markdown(f'<div class="insight-row">💎 <strong>{gem}</strong> — not used in recent recommendations.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="insight-row">Your wardrobe is fully utilized!</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
