@@ -16,6 +16,11 @@ from database.users import get_user_by_email
 from authentication.auth_utils import verify_password, login_user, validate_email
 
 def render_login_page():
+    # Guard: if already logged in, redirect immediately
+    if st.session_state.get("logged_in"):
+        st.switch_page("pages/profile.py")
+        st.stop()
+
     # Load custom branding CSS
     css_path = os.path.join(PROJECT_ROOT, "streamlit_app", "assets", "style.css")
     if os.path.exists(css_path):

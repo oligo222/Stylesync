@@ -26,6 +26,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+def load_css(css_file_path):
+    if os.path.exists(css_file_path):
+        with open(css_file_path, "r") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 def get_real_wardrobe_data():
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     try:
@@ -42,7 +47,6 @@ def get_real_wardrobe_data():
 
 def main():
     require_login()
-    # Setup styling and sidebar
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)
     render_sidebar()
@@ -50,94 +54,22 @@ def main():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif !important;
-        background-color: #eef0f7 !important;
-        color: #0a0a0a !important;
-    }
-    [data-testid="stAppViewContainer"],
-    [data-testid="stAppViewBlockContainer"],
-    [data-testid="stVerticalBlock"],
-    [data-testid="stMainBlockContainer"],
-    .main, section.main > div, .block-container {
-        background-color: #eef0f7 !important;
-    }
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; background-color: #eef0f7 !important; color: #0a0a0a !important; }
+    [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stVerticalBlock"], [data-testid="stMainBlockContainer"], .main, section.main > div, .block-container { background-color: #eef0f7 !important; }
     @media (prefers-color-scheme: dark) {
-        [data-testid="stAppViewContainer"],
-        [data-testid="stAppViewBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stMainBlockContainer"],
-        .main, section.main > div, .block-container {
-            background-color: #eef0f7 !important;
-            color: #0a0a0a !important;
-        }
+        [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stVerticalBlock"], [data-testid="stMainBlockContainer"], .main, section.main > div, .block-container { background-color: #eef0f7 !important; color: #0a0a0a !important; }
         p, span, div, label, li { color: #0a0a0a !important; }
     }
     .main .block-container { background: #eef0f7 !important; }
-
-    .page-label {
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #7986cb;
-        margin-bottom: 6px;
-    }
-    .page-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #0a0a0a;
-        letter-spacing: -0.5px;
-        line-height: 1.2;
-        margin-bottom: 6px;
-    }
-    .page-subtitle {
-        font-size: 0.95rem;
-        color: #4a4a5a;
-        margin-bottom: 24px;
-    }
-    .stat-card {
-        background: #ffffff;
-        border: 1.5px solid #d0d5e8;
-        border-radius: 12px;
-        padding: 20px 24px;
-        margin-bottom: 16px;
-        box-shadow: 0 0 14px rgba(129,199,132,0.2);
-    }
-    .stat-label {
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: #7986cb;
-        margin-bottom: 6px;
-    }
-    .stat-value {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #0a0a0a;
-        line-height: 1.3;
-    }
-    .section-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #0a0a0a;
-        margin-bottom: 12px;
-        letter-spacing: -0.3px;
-    }
-    .insight-row {
-        font-size: 0.92rem;
-        font-weight: 500;
-        color: #0a0a0a;
-        padding: 8px 0;
-        border-bottom: 1px solid #eef0f7;
-    }
+    .page-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #7986cb; margin-bottom: 6px; }
+    .page-title { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800; color: #0a0a0a; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 6px; }
+    .page-subtitle { font-size: 0.95rem; color: #4a4a5a; margin-bottom: 24px; }
+    .stat-card { background: #ffffff; border: 1.5px solid #d0d5e8; border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 0 14px rgba(129,199,132,0.2); }
+    .stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #7986cb; margin-bottom: 6px; }
+    .stat-value { font-family: 'Inter', sans-serif; font-size: 1.4rem; font-weight: 700; color: #0a0a0a; line-height: 1.3; }
+    .section-title { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 700; color: #0a0a0a; margin-bottom: 12px; letter-spacing: -0.3px; }
+    .insight-row { font-size: 0.92rem; font-weight: 500; color: #0a0a0a; padding: 8px 0; border-bottom: 1px solid #eef0f7; }
     </style>
-
     <div class="page-label">StyleSync AI</div>
     <div class="page-title">Wardrobe Intelligence.</div>
     <div class="page-subtitle">Analytics, sustainability scores, and insights from your closet.</div>
@@ -183,17 +115,11 @@ def main():
             "Count": list(category_counts.values())
         }) if category_counts else pd.DataFrame({"Category": ["No data yet"], "Count": [1]})
 
-        fig_cat = px.pie(
-            cat_data, values="Count", names="Category", hole=0.5,
-            color_discrete_sequence=["#c5cae9", "#b2dfdb", "#f8bbd9", "#fff9c4", "#b3e5fc"]
-        )
-        fig_cat.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Inter", color="#0a0a0a"),
-            legend=dict(orientation="h", y=-0.1)
-        )
+        fig_cat = px.pie(cat_data, values="Count", names="Category", hole=0.5,
+            color_discrete_sequence=["#c5cae9", "#b2dfdb", "#f8bbd9", "#fff9c4", "#b3e5fc"])
+        fig_cat.update_layout(margin=dict(t=10, b=10, l=10, r=10), paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#0a0a0a"),
+            legend=dict(orientation="h", y=-0.1))
         st.plotly_chart(fig_cat, use_container_width=True)
 
     with col_color:
@@ -208,18 +134,11 @@ def main():
             "Items Count": [c[1] for c in sorted_colors]
         }) if sorted_colors else pd.DataFrame({"Color": ["No data yet"], "Items Count": [1]})
 
-        fig_color = px.bar(
-            color_data, x="Items Count", y="Color", orientation="h",
-            color_discrete_sequence=["#9fa8da"]
-        )
-        fig_color.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font=dict(family="Inter", color="#0a0a0a"),
-            xaxis=dict(gridcolor="#e8eaf6"),
-            yaxis=dict(categoryorder="total ascending")
-        )
+        fig_color = px.bar(color_data, x="Items Count", y="Color", orientation="h",
+            color_discrete_sequence=["#9fa8da"])
+        fig_color.update_layout(margin=dict(t=10, b=10, l=10, r=10), paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#0a0a0a"),
+            xaxis=dict(gridcolor="#e8eaf6"), yaxis=dict(categoryorder="total ascending"))
         st.plotly_chart(fig_color, use_container_width=True)
 
     st.markdown('<hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">', unsafe_allow_html=True)

@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
-from authentication.auth_utils import require_login
+from authentication.auth_utils import require_login, init_session
 from components.sidebar import render_sidebar
 from components.dashboard import render_welcome_banner, render_metric_cards
 from components.outfits import render_recent_outfits
@@ -90,20 +90,62 @@ def load_wardrobe_and_history():
         pass
     return wardrobe, history
 
+def show_profile_setup_prompt(user):
+    """Show a popup if appearance hasn't been set up yet."""
+    traits = ["skin_tone", "hair_color", "body_type", "face_shape"]
+    all_unknown = all(user.get(t, "Unknown") in (None, "Unknown") for t in traits)
+
+    if not all_unknown:
+        return  # Already set up, don't show
+
+    # Only show once per session
+    if st.session_state.get("_profile_prompt_dismissed"):
+        return
+
+    @st.dialog("👤 Complete Your Profile")
+    def _prompt():
+        st.markdown("""
+            <div style="text-align:center; padding: 8px 0 16px 0;">
+                <div style="font-size: 2rem;">✨</div>
+                <div style="font-weight: 700; font-size: 1.1rem; margin: 8px 0 4px;">
+                    Set up your appearance profile
+                </div>
+                <div style="color: #6b7280; font-size: 0.9rem; line-height: 1.6;">
+                    Upload a photo so StyleSync can auto-detect your skin tone, hair, body type and more —
+                    and give you truly personalized style recommendations.
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Go to Profile", use_container_width=True, type="primary"):
+                st.switch_page("pages/profile.py")
+        with col2:
+            if st.button("Maybe Later", use_container_width=True):
+                st.session_state["_profile_prompt_dismissed"] = True
+                st.rerun()
+
+    _prompt()
+
 def main():
+    # ── Auth gate ──
+    init_session()
+    if not st.session_state.get("logged_in"):
+        st.switch_page("pages/profile.py")
+        st.stop()
+
     css_path = os.path.join(os.path.dirname(__file__), "assets", "style.css")
     load_css(css_path)
 
-    if "user_name" not in st.session_state:
-        st.session_state.user_name = "Alex"
+    user = st.session_state.get("user", {})
+    user_name = user.get("name", "Alex")
 
-    with st.sidebar:
-        new_name = st.text_input("Your name", value=st.session_state.user_name)
-        if new_name:
-            st.session_state.user_name = new_name
+    # ── Show profile setup popup if appearance not filled ──
+    show_profile_setup_prompt(user)
 
-    render_sidebar(user_name=st.session_state.user_name, membership_tier="Premium Member")
-    render_welcome_banner(user_name=st.session_state.user_name)
+    render_sidebar(user_name=user_name, membership_tier="Premium Member")
+    render_welcome_banner(user_name=user_name)
 
     st.write("---")
 

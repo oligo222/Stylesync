@@ -415,5 +415,50 @@
     "style": "Formal",
     "id": "cfee8577-0617-4568-88b4-d3133a9356f7",
     "image_path": "wardrobe/Screenshot 2026-06-20 153558.png"
+  },
+  {
+    "category": "Outerwear",
+    "garment_type": "hooded jacket",
+    "color": "off-white, multi-colored",
+    "pattern": "geometric tribal print",
+    "style": "Casual",
+    "id": "9468168e-f77f-4255-8434-2da879852e64",
+    "image_path": "wardrobe/zanzea _ women fashion outfits.jpg"
+  },
+  {
+    "category": "Top",
+    "garment_type": "short-sleeved lettuce-edge top",
+    "color": "green",
+    "pattern": "butterfly graphic with sequins",
+    "style": "Casual",
+    "id": "39c4ba72-6ca5-467f-83d8-a42d17c1518d",
+    "image_path": "wardrobe/Instagram.jpg"
+  },
+  {
+    "category": "Bottom",
+    "garment_type": "sweatpants",
+    "color": "black, green, white",
+    "pattern": "graphic print",
+    "style": "Casual",
+    "id": "685447aa-9d49-4a90-9297-abf277b39335",
+    "image_path": "wardrobe/Men's Contrast Color Simple Print String Sweatpants.jpg"
+  },
+  {
+    "category": "Top",
+    "garment_type": "long sleeve v-neck sweater",
+    "color": "pink and dark brown",
+    "pattern": "striped",
+    "style": "Casual",
+    "id": "5eae3490-6773-47e5-9796-5ba7080abb87",
+    "image_path": "wardrobe/download (33).jpg"
+  },
+  {
+    "category": "Top",
+    "garment_type": "soccer jersey",
+    "color": "white, blue, and black",
+    "pattern": "colorblocked",
+    "style": "Casual",
+    "id": "71df84db-3a92-4ea8-9496-5876208ec1fa",
+    "image_path": "wardrobe/SHEFFIELD WEDNESDAY LOTTO 2008_2009 FOOTBALL AWAY JERSEY SIZE \u201cJL\u201d _ eBay.jpg"
   }
 ]

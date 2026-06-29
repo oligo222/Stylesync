@@ -40,34 +40,22 @@ def _save_generated_avatar_bytes(user_id: str, image_bytes: bytes, angle_suffix:
 
 
 def _delete_user_images(user_id: str) -> dict:
-    """
-    Deletes all saved image/avatar files from disk for the given user,
-    clears the relevant session_state keys, and updates the database.
-
-    Returns a dict with keys 'deleted' (list of paths removed) and 'errors'
-    (list of any file-deletion error messages) so the caller can report them.
-    """
     deleted: list[str] = []
     errors: list[str] = []
 
-    # ── 1. Determine which paths to remove ──────────────────────────────────
-    # Collect from session state (most up-to-date) and fall back to DB paths.
     user_state = st.session_state.get("user", {})
-
     candidate_relative_paths = [
         user_state.get("profile_image_path"),
         user_state.get("avatar_image_path"),
         user_state.get("avatar_3d_image_path"),
     ]
 
-    # Also find any multi-angle generated avatar files on disk
     avatars_dir = os.path.join(PROJECT_ROOT, "data", "avatars")
     if os.path.isdir(avatars_dir):
         for fname in os.listdir(avatars_dir):
             if fname.startswith(str(user_id)) and fname.endswith("_3d_generated.jpg"):
                 candidate_relative_paths.append(f"data/avatars/{fname}")
 
-    # ── 2. Delete files from disk ────────────────────────────────────────────
     for rel_path in candidate_relative_paths:
         if not rel_path:
             continue
@@ -79,32 +67,28 @@ def _delete_user_images(user_id: str) -> dict:
             except OSError as exc:
                 errors.append(f"Could not delete {rel_path}: {exc}")
 
-    # Also remove the per-user 3d profile_pics sub-directory if empty
     user_pics_dir = os.path.join(PROJECT_ROOT, "data", "profile_pics", str(user_id))
     if os.path.isdir(user_pics_dir):
         try:
-            # Remove directory only if now empty
             if not os.listdir(user_pics_dir):
                 os.rmdir(user_pics_dir)
         except OSError:
-            pass  # Non-critical; leave it in place
+            pass
 
-    # ── 3. Clear session_state keys ─────────────────────────────────────────
     session_keys_to_clear = [
         "avatar_3d_upload",
         "avatar_3d_upload_bytes",
         "avatar_3d_upload_filename",
         "current_avatar_angle",
+        "detected_appearance",  # clear cached detection too
     ]
     for key in session_keys_to_clear:
         st.session_state.pop(key, None)
 
-    # Nullify image path references inside the user dict
     if st.session_state.get("user"):
         for field in ("profile_image_path", "avatar_image_path", "avatar_3d_image_path"):
             st.session_state["user"][field] = None
 
-    # ── 4. Update database ───────────────────────────────────────────────────
     if user_id:
         update_user_profile(
             user_id,
@@ -116,7 +100,6 @@ def _delete_user_images(user_id: str) -> dict:
         )
 
     return {"deleted": deleted, "errors": errors}
-
 
 
 def _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, manual_appearance=None, angle="front"):
@@ -138,14 +121,10 @@ def _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_trai
         angle=angle,
     )
 
-    # Use angle in filename for multi-angle storage
     angle_suffix = f"_{angle}" if angle != "front" else ""
     avatar_path = _save_generated_avatar_bytes(user_id, generated_bytes, angle_suffix)
-    
-    # Store current angle in session
+
     st.session_state["current_avatar_angle"] = angle
-    
-    # Update database with the avatar path
     update_user_profile(user_id, {"avatar_image_path": avatar_path})
     st.session_state["user"]["avatar_image_path"] = avatar_path
     return avatar_path
@@ -201,47 +180,38 @@ def _render_3d_avatar_section(user_id, avatar_3d_image_path, detected_traits):
             help="Upload one front-facing full-body image for 3D avatar creation."
         )
 
-        image_uploaded = any(
-            [
-                uploaded_3d_image is not None,
-                st.session_state.get("avatar_3d_upload_bytes") is not None,
-                st.session_state.get("avatar_3d_upload_filename") is not None,
-                avatar_3d_image_path,
-            ]
-        )
+        image_uploaded = any([
+            uploaded_3d_image is not None,
+            st.session_state.get("avatar_3d_upload_bytes") is not None,
+            st.session_state.get("avatar_3d_upload_filename") is not None,
+            avatar_3d_image_path,
+        ])
 
         if image_uploaded:
             if st.button("Remove Image", key="clear_3d_avatar_upload_btn", use_container_width=True):
-                # Delete 3D full-body image file from disk
                 if avatar_3d_image_path:
                     abs_3d = os.path.join(PROJECT_ROOT, avatar_3d_image_path)
                     if os.path.isfile(abs_3d):
                         try:
                             os.remove(abs_3d)
                         except OSError:
-                            pass  # Log but don't block UI
-                    # Remove per-user subdirectory if empty
-                    user_pics_dir = os.path.join(
-                        PROJECT_ROOT, "data", "profile_pics", str(user_id)
-                    )
+                            pass
+                    user_pics_dir = os.path.join(PROJECT_ROOT, "data", "profile_pics", str(user_id))
                     if os.path.isdir(user_pics_dir) and not os.listdir(user_pics_dir):
                         try:
                             os.rmdir(user_pics_dir)
                         except OSError:
                             pass
-                # Clear session state
                 for state_key in ("avatar_3d_upload", "avatar_3d_upload_bytes", "avatar_3d_upload_filename"):
                     st.session_state.pop(state_key, None)
-                # Update session user dict
                 if user_id and st.session_state.get("user"):
                     st.session_state["user"]["avatar_3d_image_path"] = None
-                    # Update database
                     update_user_profile(user_id, {"avatar_3d_image_path": None})
                 st.rerun()
 
         if uploaded_3d_image is not None:
             try:
-                with st.spinner("Saving full-body image..."):
+                with st.spinner("Saving and analysing full-body image..."):
                     bytes_data = uploaded_3d_image.getvalue()
                     saved_path = process_and_save_3d_avatar_image(bytes_data, uploaded_3d_image.name, user_id)
                     analysis = analyze_user_appearance(bytes_data)
@@ -250,25 +220,16 @@ def _render_3d_avatar_section(user_id, avatar_3d_image_path, detected_traits):
                         st.session_state["user"]["avatar_3d_image_path"] = saved_path
                         st.session_state["avatar_3d_upload_bytes"] = bytes_data
                         st.session_state["avatar_3d_upload_filename"] = uploaded_3d_image.name
-                        st.session_state["user"]["skin_tone"] = analysis.get("skin_tone", "Unknown")
-                        st.session_state["user"]["hair_color"] = analysis.get("hair_color", "Unknown")
-                        st.session_state["user"]["hair_length"] = analysis.get("hair_length", "Unknown")
-                        st.session_state["user"]["hair_style"] = analysis.get("hair_style", "Unknown")
-                        st.session_state["user"]["body_type"] = analysis.get("body_type", "Unknown")
-                        st.session_state["user"]["face_shape"] = analysis.get("face_shape", "Unknown")
+                        for trait in ("skin_tone", "hair_color", "hair_length", "hair_style", "body_type", "face_shape"):
+                            st.session_state["user"][trait] = analysis.get(trait, "Unknown")
                         update_user_profile(user_id, {
                             "avatar_3d_image_path": saved_path,
-                            "skin_tone": analysis.get("skin_tone", "Unknown"),
-                            "hair_color": analysis.get("hair_color", "Unknown"),
-                            "hair_length": analysis.get("hair_length", "Unknown"),
-                            "hair_style": analysis.get("hair_style", "Unknown"),
-                            "body_type": analysis.get("body_type", "Unknown"),
-                            "face_shape": analysis.get("face_shape", "Unknown")
+                            **{t: analysis.get(t, "Unknown") for t in ("skin_tone", "hair_color", "hair_length", "hair_style", "body_type", "face_shape")}
                         })
 
                     avatar_3d_image_path = saved_path
                     detected_traits = analysis
-                    st.success("Full-body image uploaded and attributes detected.")
+                    st.success("✅ Image uploaded — appearance auto-detected from your photo.")
             except Exception as exc:
                 st.error(str(exc))
 
@@ -276,69 +237,54 @@ def _render_3d_avatar_section(user_id, avatar_3d_image_path, detected_traits):
         with btn_col1:
             if st.button("Generate 3D Avatar", key="generate_3d_avatar_btn", use_container_width=True, disabled=not avatar_3d_image_path):
                 try:
-                    avatar_path = _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, angle="front")
+                    _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, angle="front")
                     st.success("3D avatar generated successfully.")
                     st.rerun()
-                except RuntimeError as exc:
-                    st.error(str(exc))
                 except Exception as exc:
                     st.error(str(exc))
         with btn_col2:
             if st.button("Regenerate Avatar", key="regenerate_3d_avatar_btn", use_container_width=True, disabled=not avatar_3d_image_path):
                 try:
-                    avatar_path = _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, angle="front")
+                    _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, angle="front")
                     st.success("3D avatar regenerated successfully.")
                     st.rerun()
-                except RuntimeError as exc:
-                    st.error(str(exc))
                 except Exception as exc:
                     st.error(str(exc))
-        
-        # Interactive 3D Avatar Viewer
+
         avatar_pic = avatar_3d_image_path
         if avatar_pic and os.path.exists(os.path.join(PROJECT_ROOT, avatar_pic)):
             st.markdown('<hr style="margin: 20px 0;"/>', unsafe_allow_html=True)
             render_interactive_avatar_viewer(avatar_pic, viewer_height=500)
-            
-            # Initialize current angle in session
+
             if "current_avatar_angle" not in st.session_state:
                 st.session_state["current_avatar_angle"] = "front"
-            
+
             def on_generate_angle(angle):
                 try:
                     with st.spinner(f"Generating {angle} view..."):
-                        avatar_path = _generate_and_persist_3d_avatar(
-                            user_id, avatar_3d_image_path, detected_traits, angle=angle
-                        )
+                        _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits, angle=angle)
                     st.success(f"Avatar {angle} view generated!")
                     st.rerun()
-                except RuntimeError as exc:
-                    st.error(str(exc))
                 except Exception as exc:
                     st.error(str(exc))
-            
+
             render_avatar_angle_selector(user_id, st.session_state["current_avatar_angle"], on_generate_angle)
-        
+
         st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_profile_page():
-    # Require login first
     require_login()
-    
-    # Load custom branding CSS
+
     css_path = os.path.join(PROJECT_ROOT, "streamlit_app", "assets", "style.css")
     if os.path.exists(css_path):
         with open(css_path, "r") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-            
-    # Inject page-specific styles for side-by-side previews and rounded cards
+
     st.markdown(
         """
         <style>
-        .profile-title-container {
-            margin-bottom: 24px;
-        }
+        .profile-title-container { margin-bottom: 24px; }
         .info-card {
             background-color: #ffffff;
             border: 1px solid #e5e7eb;
@@ -367,22 +313,21 @@ def render_profile_page():
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        .avatar-img {
-            border-radius: 50%;
-            border: 3px solid #e5e7eb;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-        .profile-img {
-            border-radius: 12px;
-            border: 3px solid #e5e7eb;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        .auto-detected-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 6px;
+            padding: 2px 8px;
+            margin-left: 6px;
         }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    # Initialize edit mode state
     if "editing_profile" not in st.session_state:
         st.session_state["editing_profile"] = False
 
@@ -393,7 +338,6 @@ def render_profile_page():
     gender = user.get("gender", "Prefer not to say")
     email = user.get("email", "")
 
-    # Retrieve profile details
     profile_pic = user.get("profile_image_path")
     avatar_pic = user.get("avatar_image_path")
     avatar_3d_image_path = user.get("avatar_3d_image_path")
@@ -410,7 +354,7 @@ def render_profile_page():
         "hair_length": hair_length,
         "hair_style": hair_style,
         "body_type": body_type,
-        "face_shape": face_shape
+        "face_shape": face_shape,
     }
 
     st.markdown(
@@ -424,22 +368,18 @@ def render_profile_page():
         """,
         unsafe_allow_html=True
     )
-    
+
     st.write("---")
-    
+
     col_left, col_right = st.columns([1.2, 2], gap="large")
-    
+
     with col_left:
         st.write("### My Persona")
-        
-        # Rounded preview card
+
         with st.container():
             st.markdown('<div class="info-card">', unsafe_allow_html=True)
-            
-            # Side-by-side previews using columns
             p_col1, p_col2 = st.columns(2, gap="medium")
-            
-            # 1. Profile Picture Preview
+
             with p_col1:
                 st.markdown('<div class="preview-label">Profile Photo</div>', unsafe_allow_html=True)
                 if profile_pic and os.path.exists(os.path.join(PROJECT_ROOT, profile_pic)):
@@ -454,8 +394,7 @@ def render_profile_page():
                         """,
                         unsafe_allow_html=True
                     )
-            
-            # 2. AI Avatar Preview
+
             with p_col2:
                 st.markdown('<div class="preview-label">AI Avatar</div>', unsafe_allow_html=True)
                 if avatar_pic and os.path.exists(os.path.join(PROJECT_ROOT, avatar_pic)):
@@ -470,35 +409,31 @@ def render_profile_page():
                         """,
                         unsafe_allow_html=True
                     )
-                    
+
             st.markdown('</div>', unsafe_allow_html=True)
-            
-        # Avatar Operations Row
+
         st.write("#### Avatar Settings")
-        
-        # Check if we can regenerate from full-body upload data
         can_generate = bool(avatar_3d_image_path or st.session_state.get("avatar_3d_upload_bytes"))
-        
         col_gen, col_upload, col_delete = st.columns([1.2, 1, 1])
+
         with col_gen:
             regen_btn = st.button(
-                "✨ Regenerate Avatar", 
-                use_container_width=True, 
+                "✨ Regenerate Avatar",
+                use_container_width=True,
                 disabled=not can_generate,
-                help="Re-run avatar generator using your customized appearance settings."
+                help="Re-run avatar generator using your appearance settings."
             )
-            
             if regen_btn:
                 try:
                     with st.spinner("Generating stylized AI avatar..."):
-                        avatar_path = _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits)
+                        _generate_and_persist_3d_avatar(user_id, avatar_3d_image_path, detected_traits)
                         st.success("Avatar generated successfully!")
                         st.rerun()
                 except NotImplementedError:
                     st.warning("3D avatar generation backend is not implemented yet.")
                 except Exception as exc:
                     st.error(str(exc))
-                    
+
         with col_upload:
             if not st.session_state["editing_profile"]:
                 if st.button("✏️ Edit Profile", use_container_width=True):
@@ -520,72 +455,96 @@ def render_profile_page():
                 "🗑️ Clear All Images",
                 use_container_width=True,
                 disabled=not has_any_image,
-                help="Delete your profile photo, AI avatar, and full-body reference image from disk and the database.",
                 key="clear_all_images_btn",
             ):
                 result = _delete_user_images(user_id)
                 if result["errors"]:
                     for err in result["errors"]:
                         st.warning(err)
-                removed_count = len(result["deleted"])
-                if removed_count:
-                    st.success(f"Removed {removed_count} image file(s) successfully.")
+                if result["deleted"]:
+                    st.success(f"Removed {len(result['deleted'])} image file(s) successfully.")
                 else:
                     st.info("No image files were found on disk to remove.")
                 st.rerun()
-                    
+
     with col_right:
-        # Edit Form OR Read-only Details
         if st.session_state["editing_profile"]:
             st.write("### Edit Profile Details")
-            
+
+            # ── Check if a profile pic is being uploaded so we can auto-detect ──
+            # We use a two-step approach: uploader outside the form to detect
+            # traits before the form renders, so dropdowns are pre-filled.
+            st.markdown("**Replace Profile Picture**")
+            uploaded_pic = st.file_uploader(
+                "Upload a face photo — appearance will be auto-detected",
+                type=["jpg", "jpeg", "png"],
+                key="edit_profile_pic_uploader",
+            )
+
+            # Auto-detect from uploaded pic and cache in session
+            if uploaded_pic is not None:
+                pic_key = f"detected_from_{uploaded_pic.name}_{uploaded_pic.size}"
+                if st.session_state.get("_last_detected_key") != pic_key:
+                    with st.spinner("🔍 Detecting appearance from photo..."):
+                        pic_bytes = uploaded_pic.getvalue()
+                        auto = analyze_user_appearance(pic_bytes)
+                    st.session_state["detected_appearance"] = auto
+                    st.session_state["_last_detected_key"] = pic_key
+                    st.success("✅ Appearance auto-detected! Dropdowns updated below.")
+
+            # Use auto-detected values if available, else fall back to saved values
+            auto = st.session_state.get("detected_appearance", {})
+            eff_skin   = auto.get("skin_tone",   skin_tone)   if auto.get("skin_tone")   not in (None, "Unknown") else skin_tone
+            eff_hcol   = auto.get("hair_color",  hair_color)  if auto.get("hair_color")  not in (None, "Unknown") else hair_color
+            eff_hlen   = auto.get("hair_length",  hair_length) if auto.get("hair_length") not in (None, "Unknown") else hair_length
+            eff_hsty   = auto.get("hair_style",  hair_style)  if auto.get("hair_style")  not in (None, "Unknown") else hair_style
+            eff_body   = auto.get("body_type",   body_type)   if auto.get("body_type")   not in (None, "Unknown") else body_type
+            eff_face   = auto.get("face_shape",  face_shape)  if auto.get("face_shape")  not in (None, "Unknown") else face_shape
+
             with st.form("edit_profile_form", clear_on_submit=False):
-                # Account fields
                 name_val = st.text_input("Full Name", value=name)
                 age_val = st.number_input("Age", min_value=1, max_value=120, value=int(age))
+                gender_opts = ["Female", "Male", "Non-binary", "Prefer not to say"]
                 gender_val = st.selectbox(
-                    "Gender", 
-                    ["Female", "Male", "Non-binary", "Prefer not to say"], 
-                    index=["Female", "Male", "Non-binary", "Prefer not to say"].index(gender) if gender in ["Female", "Male", "Non-binary", "Prefer not to say"] else 3
+                    "Gender", gender_opts,
+                    index=gender_opts.index(gender) if gender in gender_opts else 3
                 )
-                
-                # Image uploader
-                uploaded_pic = st.file_uploader(
-                    "Replace Profile Picture", 
-                    type=["jpg", "jpeg", "png"],
-                    help="Upload a face picture. We'll automatically estimate appearance details and update your avatar."
-                )
-                
-                st.write("#### Edit Appearance")
-                st.caption("Manually adjust your appearance attributes. These values will override auto-detected traits.")
-                
+
+                st.write("#### Appearance")
+                st.caption("Auto-detected from your photo. You can adjust any value manually.")
+
                 skin_opts = ["Unknown", "Light", "Medium", "Dark", "Olive"]
-                skin_val = st.selectbox("Skin Tone", skin_opts, index=skin_opts.index(skin_tone) if skin_tone in skin_opts else 0)
-                
+                skin_val = st.selectbox("Skin Tone", skin_opts,
+                    index=skin_opts.index(eff_skin) if eff_skin in skin_opts else 0)
+
                 hair_col_opts = ["Unknown", "Black", "Brown", "Blonde", "Grey", "Red", "White", "Bald"]
-                hair_col_val = st.selectbox("Hair Color", hair_col_opts, index=hair_col_opts.index(hair_color) if hair_color in hair_col_opts else 0)
-                
+                hair_col_val = st.selectbox("Hair Color", hair_col_opts,
+                    index=hair_col_opts.index(eff_hcol) if eff_hcol in hair_col_opts else 0)
+
                 hair_len_opts = ["Unknown", "Bald", "Short", "Medium", "Long"]
-                hair_len_val = st.selectbox("Hair Length", hair_len_opts, index=hair_len_opts.index(hair_length) if hair_length in hair_len_opts else 0)
-                
+                hair_len_val = st.selectbox("Hair Length", hair_len_opts,
+                    index=hair_len_opts.index(eff_hlen) if eff_hlen in hair_len_opts else 0)
+
                 hair_sty_opts = ["Unknown", "Straight", "Wavy", "Curly", "Coily", "Bald"]
-                hair_sty_val = st.selectbox("Hair Style", hair_sty_opts, index=hair_sty_opts.index(hair_style) if hair_style in hair_sty_opts else 0)
-                
+                hair_sty_val = st.selectbox("Hair Style", hair_sty_opts,
+                    index=hair_sty_opts.index(eff_hsty) if eff_hsty in hair_sty_opts else 0)
+
                 body_type_opts = ["Unknown", "Slim", "Athletic", "Average", "Curvy", "Stocky"]
-                body_type_val = st.selectbox("Body Type", body_type_opts, index=body_type_opts.index(body_type) if body_type in body_type_opts else 0)
-                
+                body_type_val = st.selectbox("Body Type", body_type_opts,
+                    index=body_type_opts.index(eff_body) if eff_body in body_type_opts else 0)
+
                 height_val = st.text_input("Height", value=str(height))
-                
+
                 face_opts = ["Unknown", "Oval", "Round", "Square", "Heart", "Diamond"]
-                face_val = st.selectbox("Face Shape", face_opts, index=face_opts.index(face_shape) if face_shape in face_opts else 0)
-                
+                face_val = st.selectbox("Face Shape", face_opts,
+                    index=face_opts.index(eff_face) if eff_face in face_opts else 0)
+
                 save_btn = st.form_submit_button("Save Profile & Generate Avatar", use_container_width=True)
-                
+
             if save_btn:
                 if not name_val:
                     st.error("Full name cannot be empty.")
                 else:
-                    # Update dictionary to save
                     updates = {
                         "name": name_val.strip(),
                         "age": age_val,
@@ -596,77 +555,54 @@ def render_profile_page():
                         "hair_style": hair_sty_val,
                         "body_type": body_type_val,
                         "height": height_val,
-                        "face_shape": face_val
+                        "face_shape": face_val,
                     }
-                    
-                    # 1. Process profile pic upload if provided
+
                     if uploaded_pic is not None:
                         with st.spinner("Processing profile photo..."):
                             pic_bytes = uploaded_pic.getvalue()
                             saved_path = process_and_save_profile_pic(pic_bytes, uploaded_pic.name, user_id)
                             updates["profile_image_path"] = saved_path
-                            
-                        # Perform AI Analysis immediately
-                        with st.spinner("Analyzing appearance..."):
-                            analyzed = analyze_user_appearance(pic_bytes)
-                            
-                            # Merge detected fields only when user has not manually specified them
-                            for attr, val in analyzed.items():
-                                if val == "Unknown":
-                                    continue
-                                if updates.get(attr, "Unknown") in [None, "Unknown"]:
-                                    updates[attr] = val
-                    
-                    # 2. Trigger avatar generation using updated details only if a 3D source image exists
+
                     if avatar_3d_image_path or st.session_state.get("avatar_3d_upload_bytes"):
-                        with st.spinner("Creating stylized AI avatar from 3D image..."):
+                        with st.spinner("Creating stylized AI avatar..."):
                             try:
                                 avatar_path = _generate_and_persist_3d_avatar(
-                                    user_id,
-                                    avatar_3d_image_path,
-                                    detected_traits,
+                                    user_id, avatar_3d_image_path, detected_traits,
                                     manual_appearance={
-                                        "skin_tone": updates.get("skin_tone", skin_tone),
-                                        "hair_color": updates.get("hair_color", hair_color),
-                                        "hair_length": updates.get("hair_length", hair_length),
-                                        "hair_style": updates.get("hair_style", hair_style),
-                                        "body_type": updates.get("body_type", body_type),
-                                        "face_shape": updates.get("face_shape", face_shape),
+                                        "skin_tone": skin_val,
+                                        "hair_color": hair_col_val,
+                                        "hair_length": hair_len_val,
+                                        "hair_style": hair_sty_val,
+                                        "body_type": body_type_val,
+                                        "face_shape": face_val,
                                     }
                                 )
                                 updates["avatar_image_path"] = avatar_path
                             except NotImplementedError:
-                                st.warning("3D avatar generation backend is not implemented yet. Profile updates were saved.")
+                                st.warning("Avatar generation not implemented yet. Profile saved.")
                             except Exception as exc:
                                 st.error(str(exc))
                     else:
-                        st.info("No 3D full-body image available yet. Profile updates were saved without generating an AI avatar.")
-                    
-                    # 3. Update Database
+                        st.info("No 3D full-body image yet — profile saved without avatar generation.")
+
                     update_user_profile(user_id, updates)
-                    
-                    # 4. Synchronize session state
                     for key, val in updates.items():
                         user[key] = val
                     st.session_state["user"] = user
                     st.session_state["editing_profile"] = False
-                    
-                    st.success("Profile saved and avatar generated successfully!")
+                    st.session_state.pop("detected_appearance", None)
+                    st.session_state.pop("_last_detected_key", None)
+
+                    st.success("Profile saved successfully!")
                     st.rerun()
-                    
+
         else:
-            # Read-only profile view
             st.write("### Account Details")
-            
-            # Layout standard info inside cards
             st.markdown(
                 f"""
                 <div class="info-card">
                     <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid #f3f4f6;">
-                            <td style="padding: 12px 0; font-weight: 600; color: #4b5563;">Email Address</td>
-                            <td style="padding: 12px 0; text-align: right; color: #111827;">{email} <span style="font-size:0.8rem; color:#9ca3af;">(Read-only)</span></td>
-                        </tr>
                         <tr style="border-bottom: 1px solid #f3f4f6;">
                             <td style="padding: 12px 0; font-weight: 600; color: #4b5563;">Full Name</td>
                             <td style="padding: 12px 0; text-align: right; color: #111827;">{name}</td>
@@ -686,9 +622,9 @@ def render_profile_page():
             )
 
             _render_3d_avatar_section(user_id, avatar_3d_image_path, detected_traits)
-            
+
             st.write("### Appearance Attributes")
-            
+            has_any_trait = any(v != "Unknown" for v in detected_traits.values())
             st.markdown(
                 f"""
                 <div class="info-card">
@@ -722,11 +658,12 @@ def render_profile_page():
                             <td style="padding: 12px 0; text-align: right; color: #111827;">{face_shape}</td>
                         </tr>
                     </table>
+                    {"<p style='font-size:0.8rem;color:#6b7280;margin-top:12px;'>💡 Upload a photo in Edit Profile to auto-detect these.</p>" if not has_any_trait else ""}
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-            
+
             if st.button("✏️ Edit Profile Details", key="read_mode_edit_btn", use_container_width=True):
                 st.session_state["editing_profile"] = True
                 st.rerun()

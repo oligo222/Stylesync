@@ -16,6 +16,11 @@ from database.users import get_user_by_email, create_user
 from authentication.auth_utils import hash_password, login_user, validate_email
 
 def render_signup_page():
+    # Guard: if already logged in, redirect immediately
+    if st.session_state.get("logged_in"):
+        st.switch_page("pages/profile.py")
+        st.stop()
+
     # Load custom branding CSS
     css_path = os.path.join(PROJECT_ROOT, "streamlit_app", "assets", "style.css")
     if os.path.exists(css_path):
@@ -92,7 +97,7 @@ def render_signup_page():
 
         with st.form("signup_form", clear_on_submit=False):
             name = st.text_input("Full Name", placeholder="e.g. Alex Johnson")
-            
+
             # Age and Gender in side-by-side columns inside form
             col_age, col_gender = st.columns(2)
             with col_age:

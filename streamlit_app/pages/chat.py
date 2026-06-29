@@ -70,62 +70,85 @@ def main():
 
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif !important;
-        background-color: #F7F1E3 !important;
-        color: #3B2F2A !important;
+        background-color: #eef0f7 !important;
+        color: #0a0a0a !important;
     }
     [data-testid="stAppViewContainer"],
     [data-testid="stAppViewBlockContainer"],
     [data-testid="stVerticalBlock"],
     [data-testid="stMainBlockContainer"],
     .main, section.main > div, .block-container {
-        background-color: #F7F1E3 !important;
+        background-color: #eef0f7 !important;
     }
     @media (prefers-color-scheme: dark) {
         [data-testid="stAppViewContainer"],
+        [data-testid="stAppViewBlockContainer"],
         [data-testid="stVerticalBlock"],
+        [data-testid="stMainBlockContainer"],
         .main, section.main > div, .block-container {
-            background-color: #F7F1E3 !important;
-            color: #3B2F2A !important;
+            background-color: #eef0f7 !important;
+            color: #0a0a0a !important;
         }
-        p, span, div, label, li { color: #3B2F2A !important; }
+        p, span, div, label, li { color: #0a0a0a !important; }
     }
-    .main .block-container { background: #F7F1E3 !important; }
+    .main .block-container { background: #eef0f7 !important; }
+
     .page-label {
-        font-size: 0.65rem;
+        font-size: 0.68rem;
         font-weight: 600;
         letter-spacing: 3px;
         text-transform: uppercase;
-        color: #8A9B63;
+        color: #7986cb;
         margin-bottom: 6px;
     }
     .page-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #3B2F2A;
-        letter-spacing: -0.3px;
+        font-family: 'Inter', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0a0a0a;
+        letter-spacing: -0.5px;
         line-height: 1.2;
         margin-bottom: 6px;
     }
     .page-subtitle {
-        font-size: 0.92rem;
-        color: #8A9B63;
+        font-size: 0.95rem;
+        color: #4a4a5a;
         margin-bottom: 24px;
     }
-    [data-testid="stChatMessage"] {
-        background: #F7F1E3 !important;
-        border: 1.5px solid #C9B28A !important;
-        border-radius: 4px !important;
+
+    /* User message bubble — white */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+        background: #ffffff !important;
+        border: 1.5px solid #d0d5e8 !important;
+        border-radius: 12px !important;
         margin-bottom: 10px !important;
+        padding: 14px 18px !important;
+    }
+
+    /* Assistant message bubble — soft lavender */
+    [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+        background: #f0f1fa !important;
+        border: 1.5px solid #c5caed !important;
+        border-radius: 12px !important;
+        margin-bottom: 10px !important;
+        padding: 14px 18px !important;
+    }
+
+    /* Fallback for older Streamlit versions that don't support :has() */
+    [data-testid="stChatMessage"] {
+        border-radius: 12px !important;
+        margin-bottom: 10px !important;
+        padding: 14px 18px !important;
     }
     </style>
     <div class="page-label">StyleSync AI</div>
     <div class="page-title">Your Personal Stylist.</div>
     <div class="page-subtitle">Ask anything about your wardrobe — I know exactly what you own.</div>
-    <hr style="border:none;border-top:1px solid #C9B28A;margin:8px 0 24px 0;">
+    <hr style="border:none;border-top:1px solid #d0d5e8;margin:8px 0 24px 0;">
     """, unsafe_allow_html=True)
 
     if "messages" not in st.session_state:

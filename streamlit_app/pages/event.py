@@ -17,9 +17,13 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+def load_css(css_file_path):
+    if os.path.exists(css_file_path):
+        with open(css_file_path, "r") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 def main():
     require_login()
-    # Setup styling and sidebar
     css_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "style.css")
     load_css(css_path)
     render_sidebar()
@@ -27,108 +31,23 @@ def main():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif !important;
-        background-color: #eef0f7 !important;
-        color: #0a0a0a !important;
-    }
-    [data-testid="stAppViewContainer"],
-    [data-testid="stAppViewBlockContainer"],
-    [data-testid="stVerticalBlock"],
-    [data-testid="stMainBlockContainer"],
-    .main, section.main > div, .block-container {
-        background-color: #eef0f7 !important;
-    }
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif !important; background-color: #eef0f7 !important; color: #0a0a0a !important; }
+    [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stVerticalBlock"], [data-testid="stMainBlockContainer"], .main, section.main > div, .block-container { background-color: #eef0f7 !important; }
     @media (prefers-color-scheme: dark) {
-        [data-testid="stAppViewContainer"],
-        [data-testid="stAppViewBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stMainBlockContainer"],
-        .main, section.main > div, .block-container {
-            background-color: #eef0f7 !important;
-            color: #0a0a0a !important;
-        }
+        [data-testid="stAppViewContainer"], [data-testid="stAppViewBlockContainer"], [data-testid="stVerticalBlock"], [data-testid="stMainBlockContainer"], .main, section.main > div, .block-container { background-color: #eef0f7 !important; color: #0a0a0a !important; }
         p, span, div, label, li { color: #0a0a0a !important; }
     }
     .main .block-container { background: #eef0f7 !important; }
-
-    .page-label {
-        font-size: 0.68rem;
-        font-weight: 600;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #7986cb;
-        margin-bottom: 6px;
-    }
-    .page-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #0a0a0a;
-        letter-spacing: -0.5px;
-        line-height: 1.2;
-        margin-bottom: 6px;
-    }
-    .page-subtitle {
-        font-size: 0.95rem;
-        color: #4a4a5a;
-        margin-bottom: 24px;
-    }
-    .outfit-result-card {
-        background: #ffffff;
-        border: 1.5px solid #d0d5e8;
-        border-radius: 12px;
-        padding: 22px 26px;
-        margin-bottom: 16px;
-        box-shadow: 0 0 14px rgba(129,199,132,0.2);
-    }
-    .result-score {
-        font-family: 'Inter', sans-serif;
-        font-size: 1rem;
-        font-weight: 700;
-        background: #e8f5e9;
-        border: 1.5px solid #a5d6a7;
-        display: inline-block;
-        padding: 3px 14px;
-        margin-bottom: 14px;
-        color: #0a0a0a;
-        border-radius: 6px;
-    }
-    .result-label {
-        font-size: 0.65rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: #7986cb;
-        margin-bottom: 6px;
-    }
-    .result-item {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: #0a0a0a;
-        padding: 6px 0;
-        border-bottom: 1px solid #eef0f7;
-    }
-    .result-note {
-        border-left: 3px solid #a5d6a7;
-        padding: 10px 14px;
-        background: #f1f8f1;
-        color: #0a0a0a;
-        margin-top: 14px;
-        border-radius: 0 8px 8px 0;
-        font-size: 0.88rem;
-        line-height: 1.6;
-    }
-    .event-results-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #0a0a0a;
-        margin-bottom: 16px;
-    }
+    .page-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #7986cb; margin-bottom: 6px; }
+    .page-title { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800; color: #0a0a0a; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 6px; }
+    .page-subtitle { font-size: 0.95rem; color: #4a4a5a; margin-bottom: 24px; }
+    .outfit-result-card { background: #ffffff; border: 1.5px solid #d0d5e8; border-radius: 12px; padding: 22px 26px; margin-bottom: 16px; box-shadow: 0 0 14px rgba(129,199,132,0.2); }
+    .result-score { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 700; background: #e8f5e9; border: 1.5px solid #a5d6a7; display: inline-block; padding: 3px 14px; margin-bottom: 14px; color: #0a0a0a; border-radius: 6px; }
+    .result-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #7986cb; margin-bottom: 6px; }
+    .result-item { font-size: 0.95rem; font-weight: 500; color: #0a0a0a; padding: 6px 0; border-bottom: 1px solid #eef0f7; }
+    .result-note { border-left: 3px solid #a5d6a7; padding: 10px 14px; background: #f1f8f1; color: #0a0a0a; margin-top: 14px; border-radius: 0 8px 8px 0; font-size: 0.88rem; line-height: 1.6; }
+    .event-results-title { font-family: 'Inter', sans-serif; font-size: 1.2rem; font-weight: 700; color: #0a0a0a; margin-bottom: 16px; }
     </style>
-
     <div class="page-label">StyleSync AI</div>
     <div class="page-title">Plan Your Perfect Look.</div>
     <div class="page-subtitle">Tell us your event — we'll build outfits from what you already own.</div>

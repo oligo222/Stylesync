@@ -22,6 +22,11 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+def load_css(css_file_path):
+    if os.path.exists(css_file_path):
+        with open(css_file_path, "r") as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 def load_latest_recommendations():
     output_path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(__file__))),

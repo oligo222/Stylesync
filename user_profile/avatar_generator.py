@@ -1,19 +1,15 @@
 """
 StyleSync Avatar Generator Interface
-
-Generates a realistic full-body 3D avatar from a single front-facing full-body
-reference image. This module preserves facial features, hairstyle, skin tone,
-and body proportions while producing a lifelike 3D-rendered result.
 """
 import os
 import sys
-import base64
+import re
+import json
 from typing import Dict
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# Allow importing from project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
@@ -43,7 +39,6 @@ def extract_appearance_traits(image_bytes: bytes, mime_type: str) -> dict:
     client = genai.Client(api_key=api_key)
     prompt = """
     Extract appearance traits from this full-body image.
-
     Return ONLY valid JSON:
     {
       "skin_tone": "",
@@ -56,44 +51,26 @@ def extract_appearance_traits(image_bytes: bytes, mime_type: str) -> dict:
     """
 
     response = client.models.generate_content(
-        model="gemini-1.5-pro",
+        model="gemini-2.5-flash",
         contents=[
             types.Content(
                 parts=[
                     types.Part.from_bytes(data=image_bytes, mime_type=mime_type),
-                    types.Part.from_text(prompt),
+                    types.Part.from_text(text=prompt),
                 ]
             )
         ]
     )
-    import json
-    import re
 
     text = response.text.strip()
     text = text.replace("```json", "").replace("```", "")
-
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError("Invalid JSON from model")
-
     return json.loads(match.group())
 
-#def merge_appearance_traits(
-  #  detected_appearance: AvatarAppearance,
- #   manual_appearance: AvatarAppearance,
-#) -> AvatarAppearance:
-  #  """Return appearance traits with manual overrides applied over detected values."""
-  #  final_traits = {**(detected_appearance or {})}
- #   for key, value in (manual_appearance or {}).items():
- #       if value is None:
-  #          continue
-   #     normalized = str(value).strip()
-    #    if normalized and normalized.lower() != "unknown":
-     #       final_traits[key] = normalized
-   # return final_traits
 
 def _build_avatar_prompt(appearance_traits: Dict[str, str], angle: str = "front"):
-
     angles = {
         "front": "full-body front view, standing naturally, eye-level camera",
         "side": "full-body right side profile, natural pose",
@@ -101,7 +78,7 @@ def _build_avatar_prompt(appearance_traits: Dict[str, str], angle: str = "front"
     }
 
     prompt = f"""
-Ultra-realistic 3D full-body avatar.
+Ultra-realistic full-body avatar portrait.
 
 Style:
 - hyper realistic
@@ -116,17 +93,12 @@ Pose:
 
 Identity traits:
 """
-
     for k, v in appearance_traits.items():
         if v and str(v).lower() != "unknown":
             prompt += f"- {k}: {v}\n"
 
-    prompt += """
-Output: a single realistic full-body portrait image.
-"""
-
+    prompt += "\nOutput: a single realistic full-body portrait image."
     return prompt
-
 
 
 def _create_avatar_image(uploaded_image_bytes, filename, appearance_traits, angle="front"):
@@ -137,20 +109,30 @@ def _create_avatar_image(uploaded_image_bytes, filename, appearance_traits, angl
         raise RuntimeError("Missing GEMINI_API_KEY")
 
     client = genai.Client(api_key=api_key)
-
     prompt = _build_avatar_prompt(appearance_traits, angle)
+    mime_type = _mime_type_from_filename(filename)
 
     try:
-        response = client.models.generate_images(
-            model="imagen-3.0-generate-001",
-            prompt=prompt,
-            config=types.GenerateImagesConfig(
-                number_of_images=1,
-                image_size="1024x1792"
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-preview-image-generation",
+            contents=[
+                types.Content(
+                    parts=[
+                        types.Part.from_bytes(data=uploaded_image_bytes, mime_type=mime_type),
+                        types.Part.from_text(text=prompt),
+                    ]
+                )
+            ],
+            config=types.GenerateContentConfig(
+                response_modalities=["IMAGE", "TEXT"],
             )
         )
 
-        return response.generated_images[0].image.image_bytes
+        for part in response.candidates[0].content.parts:
+            if part.inline_data is not None:
+                return part.inline_data.data
+
+        raise RuntimeError("No image was returned by the model.")
 
     except Exception as e:
         raise RuntimeError(f"Avatar generation failed: {e}")
@@ -187,8 +169,8 @@ def generate_avatar_image(
 
 
 def generate_avatar(*args, **kwargs):
-    """Backward-compatible alias for generate_avatar_image."""
     return generate_avatar_image(*args, **kwargs)
+
 
 def generate_all_views(image_bytes, filename, traits):
     return {

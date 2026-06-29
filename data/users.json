@@ -1,22 +1,23 @@
 [
     {
         "id": "9f936475-a2c8-4774-9538-e6d6aacded43",
-        "name": "sejal",
+        "name": "anaya",
         "age": 18,
         "gender": "Female",
         "email": "sejal.300108@gmail.com",
         "password_hash": "31cf0299eda28680339dfee9ff472d39:1cf3f4b40f9dacef8c74e2ac2afc20569abbf8abd157fac7cea5d75c2447a8f0",
         "created_at": "2026-06-23T09:49:35.465691",
         "membership_tier": "Premium Member",
-        "skin_tone": "Dark",
-        "hair_color": "Black",
+        "skin_tone": "Light",
+        "hair_color": "Blonde",
         "hair_length": "Long",
-        "hair_style": "Straight",
-        "face_shape": "Round",
-        "profile_image_path": null,
+        "hair_style": "Wavy",
+        "face_shape": "Oval",
+        "profile_image_path": "data/profile_pics/9f936475-a2c8-4774-9538-e6d6aacded43.jpg",
         "avatar_image_path": null,
-        "last_updated": "2026-06-28T05:58:53.117243",
-        "avatar_3d_image_path": null,
-        "body_type": "Unknown"
+        "last_updated": "2026-06-29T07:33:41.937807",
+        "avatar_3d_image_path": "data/profile_pics/9f936475-a2c8-4774-9538-e6d6aacded43/3d_full_body.jpg",
+        "body_type": "Slim",
+        "height": "Unknown"
     }
 ]
